@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Quinto Ponto Cardeal">
 <title>Imposto Voluntário · Euromilhões</title>
 <meta name="description" content="EuroMillions odds, line generator and prize split, with the math to back it up. English and Portuguese. / Probabilidades, gerador de chaves e partilha de prémio do EuroMilhões, com as contas.">
 <meta name="theme-color" content="#0b1020">
@@ -401,6 +402,10 @@
   .lang-btn { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:.06em; padding:5px 10px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid var(--line); color:var(--muted); cursor:pointer; }
   .lang-btn:hover { border-color:var(--line-2); color:var(--text); }
   html[lang="en"] .pt-only { display:none; }
+  html:not([lang="en"]) .en-only { display:none; }
+  .site-foot { margin-top:22px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); line-height:1.7; }
+  .site-foot a { color:var(--gold); text-decoration:none; border-bottom:1px dotted var(--gold); }
+  .split-count { width:70px; }
   .cur-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:6px 0 14px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
   .cur-row select { font-family:inherit; font-size:11px; color:var(--text); background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:8px; padding:5px 8px; }
   .cur-note { flex-basis:100%; font-size:10px; color:var(--muted-2); line-height:1.5; }
@@ -615,39 +620,8 @@
 
   <div class="stats-curiosity">
 
-    <!-- Terça vs Sexta -->
-    <div class="curiosity-block pt-only">
-      <div class="curiosity-title">&#9654; Os prémios saem mais à terça ou à sexta?</div>
-      <p class="curiosity-text">
-        Desde que o sorteio passou a ser bi-semanal (maio 2011), realizaram-se <b>praticamente o mesmo número</b> de sorteios em cada dia — é o que seria de esperar num sorteio justo. No formato actual (5/50 + 2/12, desde set 2016) foram <b>508 sorteios às terças</b> e <b>507 às sextas</b>, um empate virtual.
-      </p>
-      <p class="curiosity-text">
-        Analisando os maiores jackpots históricos documentados, a divisão por dia é também equilibrada — o que confirma que o dia da semana <b>não influencia a probabilidade</b>. Cada sorteio é independente. Dito isto, alguns dos maiores jackpots alguma vez pagos saíram efectivamente à terça:
-      </p>
-      <div class="day-comparison">
-        <div class="day-card tue">
-          <div class="day-label">Terça-feira</div>
-          <div class="day-stat">508 sorteios</div>
-          <div class="day-highlights">
-            <div class="day-hi">&#127941; €250M — 17 jun 2025 (Irlanda)</div>
-            <div class="day-hi">&#127941; €250M — 28 mar 2025 (Áustria)</div>
-            <div class="day-hi">&#127941; €175M — 19 fev 2019 (Irlanda)</div>
-            <div class="day-hi">&#127941; €174M — 9 jun 2026 (Bélgica)</div>
-          </div>
-        </div>
-        <div class="day-card fri">
-          <div class="day-label">Sexta-feira</div>
-          <div class="day-stat">507 sorteios</div>
-          <div class="day-highlights">
-            <div class="day-hi">&#127941; €250M — 19 ago 2025 (França)</div>
-            <div class="day-hi">&#127941; €240M — 15 dez 2023 (Áustria)</div>
-            <div class="day-hi">&#127941; €230M — 19 jul 2022 (Reino Unido)</div>
-            <div class="day-hi">&#127941; €220M — 26 out 2021 (França)</div>
-          </div>
-        </div>
-      </div>
-      <p class="curiosity-note">Dados: formato actual · 508 + 507 = 1015 sorteios até jun 2026. Conclusão: é indiferente jogar à terça ou à sexta.</p>
-    </div>
+    <!-- Terça vs Sexta (gerado em renderCuriosities) -->
+    <div class="curiosity-block" id="dayBlock"></div>
 
     <!-- Maiores jackpots ≥50M -->
     <div class="curiosity-block" style="margin-top:18px;">
@@ -664,93 +638,20 @@
 
     <!-- Jackpots ganhos em Portugal -->
     <div class="curiosity-block pt-only" style="margin-top:18px;">
-      <div class="curiosity-title">&#9654; Jackpots do EuroMillhões ganhos em Portugal</div>
+      <div class="curiosity-title">&#9654; Jackpots do Euromilhões ganhos em Portugal</div>
       <p class="curiosity-text">
-        Portugal participa no EuroMillhões desde <b>2 de outubro de 2004</b> e é consistentemente um dos países com mais primeiros prémios atribuídos. Ao todo, já saíram <b>mais de 75 jackpots em Portugal</b> (1.º prémio), a uma média aproximada de <b>~4 por ano</b>. Dois saíram à terça, a maioria à sexta — mas a amostra é pequena para concluir diferenças reais.
+        Portugal participa no Euromilhões desde <b>2 de outubro de 2004</b> e é um dos países com mais primeiros prémios atribuídos. Ao todo, já saíram <b>mais de 75 jackpots em Portugal</b>, cerca de <b>4 por ano</b>.
       </p>
-      <p class="curiosity-text">
-        Os maiores jackpots conhecidos ganhos em Portugal, com localidade, data e valor:
-      </p>
+      <p class="curiosity-text">Os maiores jackpots conhecidos ganhos em Portugal:</p>
       <div class="jackpot-list-wrap">
         <table class="jackpot-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Valor ganho</th><th>Valor líquido (−20%)</th><th>Data</th><th>Dia</th><th>Localidade</th><th>Aposta</th>
-            </tr>
-          </thead>
+          <thead><tr><th>#</th><th>Valor ganho</th><th>Valor líquido (−20%)</th><th>Data</th><th>Dia</th><th>Localidade</th><th>Aposta</th></tr></thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td class="jv">€213,9 M</td>
-              <td style="color:var(--green);font-weight:600;">~€171,1 M</td>
-              <td>25 jun 2024</td>
-              <td class="tue-tag">Terça</td>
-              <td>Ramalde, Porto</td>
-              <td style="color:var(--muted);">€2,50 (simples)</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td class="jv">€190 M</td>
-              <td style="color:var(--green);font-weight:600;">~€152 M</td>
-              <td>24 out 2014</td>
-              <td class="fri-tag">Sexta</td>
-              <td>Tabacaria Sobedis, C. Alegro, Castelo Branco</td>
-              <td style="color:var(--muted);">desconhecida</td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td class="jv">€163,5 M</td>
-              <td style="color:var(--green);font-weight:600;">~€130,8 M</td>
-              <td>nov 2015</td>
-              <td class="fri-tag">Sexta</td>
-              <td>Eiras, Coimbra</td>
-              <td style="color:var(--muted);">desconhecida</td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td class="jv">€100,8 M</td>
-              <td style="color:var(--green);font-weight:600;">~€80,6 M</td>
-              <td>jan 2020</td>
-              <td class="fri-tag">Sexta</td>
-              <td>Distrito de Lisboa</td>
-              <td style="color:var(--muted);">desconhecida</td>
-            </tr>
-            <tr>
-              <td>5</td>
-              <td class="jv">€61,2 M</td>
-              <td style="color:var(--green);font-weight:600;">~€49 M</td>
-              <td>3 fev 2006</td>
-              <td class="fri-tag">Sexta</td>
-              <td>Odivelas, Lisboa <span style="color:var(--muted-2);font-size:10px;">(jackpot partilhado €183,6M com 2 franceses)</span></td>
-              <td style="color:var(--muted);">desconhecida</td>
-            </tr>
-            <tr>
-              <td>6</td>
-              <td class="jv">~€67 M</td>
-              <td style="color:var(--green);font-weight:600;">~€53,6 M</td>
-              <td>2021</td>
-              <td class="tue-tag">Terça</td>
-              <td>Distrito do Porto</td>
-              <td style="color:var(--muted);">desconhecida</td>
-            </tr>
-            <tr>
-              <td>7</td>
-              <td class="jv">~€66 M</td>
-              <td style="color:var(--green);font-weight:600;">~€52,8 M</td>
-              <td>2019</td>
-              <td class="fri-tag">Sexta</td>
-              <td>Faro</td>
-              <td style="color:var(--muted);">desconhecida</td>
-            </tr>
-            <tr>
-              <td>8</td>
-              <td class="jv">~€40 M</td>
-              <td style="color:var(--green);font-weight:600;">~€32 M</td>
-              <td>~2010s</td>
-              <td class="muted-tag">—</td>
-              <td>Marco de Canaveses <span style="color:var(--muted-2);font-size:10px;">(Amélia de Jesus)</span></td>
-              <td style="color:var(--muted);">desconhecida</td>
-            </tr>
+            <tr><td>1</td><td class="jv">€213,9 M</td><td style="color:var(--green);font-weight:600;">~€171,1 M</td><td>25 jun 2024</td><td class="tue-tag">Terça</td><td>Ramalde, Porto</td><td style="color:var(--muted);">€2,50 (simples)</td></tr>
+            <tr><td>2</td><td class="jv">€190 M</td><td style="color:var(--green);font-weight:600;">~€152 M</td><td>24 out 2014</td><td class="fri-tag">Sexta</td><td>Castelo Branco</td><td style="color:var(--muted);">desconhecida</td></tr>
+            <tr><td>3</td><td class="jv">€163,5 M</td><td style="color:var(--green);font-weight:600;">~€130,8 M</td><td>nov 2015</td><td class="fri-tag">Sexta</td><td>Eiras, Coimbra</td><td style="color:var(--muted);">desconhecida</td></tr>
+            <tr><td>4</td><td class="jv">€100,8 M</td><td style="color:var(--green);font-weight:600;">~€80,6 M</td><td>jan 2020</td><td class="fri-tag">Sexta</td><td>Distrito de Lisboa</td><td style="color:var(--muted);">desconhecida</td></tr>
+            <tr><td>5</td><td class="jv">€61,2 M</td><td style="color:var(--green);font-weight:600;">~€49 M</td><td>3 fev 2006</td><td class="fri-tag">Sexta</td><td>Odivelas, Lisboa <span style="color:var(--muted-2);font-size:10px;">(parte de um jackpot de €183,6 M dividido com 2 apostas em França)</span></td><td style="color:var(--muted);">desconhecida</td></tr>
           </tbody>
         </table>
       </div>
@@ -758,82 +659,123 @@
         <div class="pt-stat"><span class="pt-val">75+</span><span class="pt-k">jackpots ganhos em PT</span></div>
         <div class="pt-stat"><span class="pt-val">~4/ano</span><span class="pt-k">frequência média</span></div>
         <div class="pt-stat"><span class="pt-val">€213,9 M</span><span class="pt-k">maior de sempre em PT (2024)</span></div>
-        <div class="pt-stat"><span class="pt-val">20%</span><span class="pt-k">imposto do selo sobre o prémio bruto</span></div>
+        <div class="pt-stat"><span class="pt-val">20%</span><span class="pt-k">imposto do selo sobre o prémio</span></div>
       </div>
       <p class="curiosity-note">
-        Fontes: Santa Casa da Misericórdia de Lisboa, euro-millions.com, Wikipedia PT, Observador, Notícias ao Minuto · jun 2026. A lista de jackpots completa não é divulgada publicamente com todos os detalhes — os registos menores podem ter lacunas. O valor líquido é estimado após imposto do selo de 20%. "Muted-tag" = dia não confirmado nas fontes consultadas.
+        Fontes: Santa Casa da Misericórdia de Lisboa, euro-millions.com, Wikipédia, Observador, Notícias ao Minuto. A lista completa não é publicada com todos os detalhes, por isso pode ter lacunas. O valor líquido é uma estimativa depois de 20% de imposto do selo.
       </p>
     </div>
-
-    <!-- Probabilidade de rollover -->
+    <div class="curiosity-block en-only" style="margin-top:18px;">
+      <div class="curiosity-title">&#9654; EuroMillions jackpots won in Portugal</div>
+      <p class="curiosity-text">
+        Portugal has played EuroMillions since <b>2 October 2004</b> and is one of the countries with the most jackpots won. In total, <b>more than 75 jackpots</b> have been won there, about <b>4 a year</b>.
+      </p>
+      <p class="curiosity-text">The biggest known jackpots won in Portugal:</p>
+      <div class="jackpot-list-wrap">
+        <table class="jackpot-table">
+          <thead><tr><th>#</th><th>Amount won</th><th>Net amount (−20%)</th><th>Date</th><th>Day</th><th>Place</th><th>Bet</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="jv">€213.9M</td><td style="color:var(--green);font-weight:600;">~€171.1M</td><td>25 Jun 2024</td><td class="tue-tag">Tuesday</td><td>Ramalde, Porto</td><td style="color:var(--muted);">€2.50 (single line)</td></tr>
+            <tr><td>2</td><td class="jv">€190M</td><td style="color:var(--green);font-weight:600;">~€152M</td><td>24 Oct 2014</td><td class="fri-tag">Friday</td><td>Castelo Branco</td><td style="color:var(--muted);">unknown</td></tr>
+            <tr><td>3</td><td class="jv">€163.5M</td><td style="color:var(--green);font-weight:600;">~€130.8M</td><td>Nov 2015</td><td class="fri-tag">Friday</td><td>Eiras, Coimbra</td><td style="color:var(--muted);">unknown</td></tr>
+            <tr><td>4</td><td class="jv">€100.8M</td><td style="color:var(--green);font-weight:600;">~€80.6M</td><td>Jan 2020</td><td class="fri-tag">Friday</td><td>Lisbon district</td><td style="color:var(--muted);">unknown</td></tr>
+            <tr><td>5</td><td class="jv">€61.2M</td><td style="color:var(--green);font-weight:600;">~€49M</td><td>3 Feb 2006</td><td class="fri-tag">Friday</td><td>Odivelas, Lisbon <span style="color:var(--muted-2);font-size:10px;">(share of a €183.6M jackpot split with 2 tickets in France)</span></td><td style="color:var(--muted);">unknown</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pt-stats-row">
+        <div class="pt-stat"><span class="pt-val">75+</span><span class="pt-k">jackpots won in Portugal</span></div>
+        <div class="pt-stat"><span class="pt-val">~4/year</span><span class="pt-k">average frequency</span></div>
+        <div class="pt-stat"><span class="pt-val">€213.9M</span><span class="pt-k">biggest ever in Portugal (2024)</span></div>
+        <div class="pt-stat"><span class="pt-val">20%</span><span class="pt-k">stamp duty on the prize</span></div>
+      </div>
+      <p class="curiosity-note">
+        Sources: Santa Casa da Misericórdia de Lisboa, euro-millions.com, Wikipedia, Observador, Notícias ao Minuto. The full list is not published with every detail, so it may have gaps. The net amount is an estimate after 20% Portuguese stamp duty.
+      </p>
+    </div>
 
     <!-- Perfil dos vencedores -->
     <div class="curiosity-block pt-only" style="margin-top:18px;">
       <div class="curiosity-title">&#9654; Quem ganha? Apostas baixas ou altas, regulares ou ocasionais, sozinhos ou em grupo?</div>
       <p class="curiosity-text">
-        A EuroMillions não obriga os vencedores a divulgar detalhes da sua aposta, por isso os dados são incompletos. Mas os casos documentados publicamente — e estudos sobre lotarias europeias — revelam padrões consistentes:
+        A EuroMillions não obriga os vencedores a divulgar como apostaram, por isso os dados são incompletos. Mas os casos públicos e os estudos sobre lotarias europeias mostram padrões consistentes:
       </p>
-
       <div class="profile-grid">
-
         <div class="profile-card">
           <div class="profile-icon">💶</div>
           <div class="profile-title">Valor apostado</div>
           <div class="profile-body">
-            A <b>esmagadora maioria dos jackpots</b> foi ganha com apostas simples de <b>€2,50</b> (uma linha). O caso mais célebre em Portugal é o de Ramalde, Porto (2024): <b>€213,9M ganhos com uma aposta simples de €2,50</b>. O de Castelo Branco (2014, €190M) também foi aposta simples. Não há evidência de que apostas maiores aumentem a probabilidade relativa — apenas as probabilidades absolutas, proporcionalmente ao número de linhas compradas.
+            A <b>grande maioria dos jackpots</b> foi ganha com apostas simples de <b>€2,50</b> (uma linha). O caso mais conhecido em Portugal é o de Ramalde, no Porto (2024): <b>€213,9 M ganhos com uma aposta simples de €2,50</b>. Apostar mais não melhora a probabilidade de cada linha. Só aumenta o número de linhas compradas.
           </div>
           <div class="profile-verdict good">✓ Apostas baixas ganham tanto como apostas altas</div>
         </div>
-
         <div class="profile-card">
           <div class="profile-icon">📅</div>
-          <div class="profile-title">Jogadores regulares vs. ocasionais</div>
+          <div class="profile-title">Jogadores regulares ou ocasionais</div>
           <div class="profile-body">
-            Há casos documentados nos dois extremos. O vencedor irlandês de €250M (jun 2025) comprou o bilhete <b>pela primeira vez</b> numa loja. A jovem Jane Park (Escócia, 2013) ganhou €1M <b>no primeiro bilhete da vida</b>. Noutro extremo, há vencedores que jogavam há décadas. Como o sorteio é aleatório e independente, <b>jogar regularmente não aumenta as hipóteses de um sorteio específico</b> — apenas garante estar "na corrida" mais vezes. Um jogador que compra 1 bilhete por semana durante 20 anos fez ~2080 tentativas com 1 em 139M cada.
+            Há casos nos dois extremos: vencedores que compraram o bilhete pela primeira vez e outros que jogavam há décadas. Como cada sorteio é independente, <b>jogar com regularidade não aumenta as hipóteses de um sorteio em particular</b>. Só faz estar mais vezes "na corrida". Quem compra 1 bilhete por semana durante 20 anos faz cerca de 2080 tentativas, cada uma com 1 hipótese em 139 milhões.
           </div>
           <div class="profile-verdict neutral">→ Irrelevante: cada sorteio é independente</div>
         </div>
-
         <div class="profile-card">
           <div class="profile-icon">👥</div>
-          <div class="profile-title">Sozinhos ou em grupo (sindicato)?</div>
+          <div class="profile-title">Sozinhos ou em grupo?</div>
           <div class="profile-body">
-            Estudos do National Lottery UK estimam que <b>~20–25% de todos os grandes prémios</b> (EuroMillions + Lotto) são ganhos por sindicatos. Em Portugal, os casos conhecidos são maioritariamente <b>apostadores individuais anónimos</b>. Os maiores sindicatos documentados na Europa incluem o de 8 irmãos irlandeses (€175M, 2019), 22 motoristas de autocarro de Dublin (€23,8M, 2016) e grupos de colegas de trabalho no Reino Unido. A vantagem do sindicato é real: mais linhas pelo mesmo custo — mas o prémio divide-se pelo número de membros.
+            A National Lottery do Reino Unido estima que <b>cerca de 20 a 25% dos grandes prémios</b> (EuroMillions e Lotto) são ganhos por grupos. Em Portugal, os casos conhecidos são sobretudo <b>apostadores individuais e anónimos</b>. Na Europa há grupos de família, de colegas de trabalho e de amigos entre os vencedores. A vantagem do grupo é real (mais linhas pelo mesmo custo), mas o prémio divide-se por todos.
           </div>
-          <div class="profile-verdict neutral">→ ~75–80% ganhos individualmente, ~20–25% em grupo</div>
+          <div class="profile-verdict neutral">→ Cerca de 75 a 80% ganhos individualmente, 20 a 25% em grupo</div>
         </div>
-
       </div>
-
       <div class="profile-summary">
-        <div class="ps-item"><span class="ps-icon">🏆</span><span class="ps-text">Maior prémio em PT com aposta simples (€2,50): <b>€213,9M</b> — Ramalde, Porto, 2024</span></div>
-        <div class="ps-item"><span class="ps-icon">🎲</span><span class="ps-text">Probabilidade = linhas compradas ÷ 139 838 160 — o valor apostado só conta porque compra mais linhas</span></div>
-        <div class="ps-item"><span class="ps-icon">👤</span><span class="ps-text">A maioria dos vencedores em Portugal são individuais e anónimos — não há padrão de "apostador típico"</span></div>
-        <div class="ps-item"><span class="ps-icon">📊</span><span class="ps-text">~1 em 5 grandes prémios na Europa é ganho por sindicatos (estimativa UK National Lottery)</span></div>
+        <div class="ps-item"><span class="ps-icon">🏆</span><span class="ps-text">Maior prémio em Portugal com aposta simples (€2,50): <b>€213,9 M</b>, Ramalde, Porto, 2024</span></div>
+        <div class="ps-item"><span class="ps-icon">🎲</span><span class="ps-text">Probabilidade = linhas compradas ÷ 139 838 160. O valor apostado só conta porque compra mais linhas</span></div>
+        <div class="ps-item"><span class="ps-icon">👤</span><span class="ps-text">A maioria dos vencedores em Portugal são individuais e anónimos. Não há um "apostador típico"</span></div>
+        <div class="ps-item"><span class="ps-icon">📊</span><span class="ps-text">Cerca de 1 em cada 5 grandes prémios na Europa é ganho por um grupo (estimativa da National Lottery)</span></div>
       </div>
-
-      <p class="curiosity-note">Fontes: euro-millions.com, National Lottery UK, Santa Casa, casos documentados publicamente. A maioria dos vencedores opta pelo anonimato, pelo que os dados são parciais.</p>
+      <p class="curiosity-note">Fontes: euro-millions.com, National Lottery (Reino Unido), Santa Casa e casos públicos. A maioria dos vencedores escolhe o anonimato, por isso os dados são parciais.</p>
+    </div>
+    <div class="curiosity-block en-only" style="margin-top:18px;">
+      <div class="curiosity-title">&#9654; Who wins? Small or big bets, regular or occasional players, alone or in a group?</div>
+      <p class="curiosity-text">
+        EuroMillions does not require winners to say how they played, so the data is incomplete. But public cases and studies of European lotteries show consistent patterns:
+      </p>
+      <div class="profile-grid">
+        <div class="profile-card">
+          <div class="profile-icon">💶</div>
+          <div class="profile-title">Amount staked</div>
+          <div class="profile-body">
+            The <b>vast majority of jackpots</b> were won with single <b>€2.50</b> bets (one line). The best-known case in Portugal is Ramalde, in Porto (2024): <b>€213.9M won with a single €2.50 line</b>. Betting more does not improve the odds of each line. It only increases the number of lines you buy.
+          </div>
+          <div class="profile-verdict good">✓ Small bets win just as often as big ones, line for line</div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-icon">📅</div>
+          <div class="profile-title">Regular or occasional players</div>
+          <div class="profile-body">
+            There are cases at both ends: winners who bought a ticket for the first time and others who had played for decades. Since every draw is independent, <b>playing regularly does not raise your odds in any given draw</b>. It only means you are "in the running" more often. Someone who buys 1 ticket a week for 20 years makes about 2,080 attempts, each with a 1 in 139 million chance.
+          </div>
+          <div class="profile-verdict neutral">→ Irrelevant: every draw is independent</div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-icon">👥</div>
+          <div class="profile-title">Alone or in a group?</div>
+          <div class="profile-body">
+            The UK National Lottery estimates that <b>about 20 to 25% of big prizes</b> (EuroMillions and Lotto) are won by syndicates. In Portugal, known cases are mostly <b>individual, anonymous players</b>. Across Europe, winners include family groups, coworkers and friends. The group advantage is real (more lines for the same cost), but the prize is split among everyone.
+          </div>
+          <div class="profile-verdict neutral">→ About 75 to 80% won alone, 20 to 25% by groups</div>
+        </div>
+      </div>
+      <div class="profile-summary">
+        <div class="ps-item"><span class="ps-icon">🏆</span><span class="ps-text">Biggest prize in Portugal from a single €2.50 line: <b>€213.9M</b>, Ramalde, Porto, 2024</span></div>
+        <div class="ps-item"><span class="ps-icon">🎲</span><span class="ps-text">Odds = lines bought ÷ 139,838,160. The amount staked only matters because it buys more lines</span></div>
+        <div class="ps-item"><span class="ps-icon">👤</span><span class="ps-text">Most winners in Portugal are individuals who stay anonymous. There is no "typical player"</span></div>
+        <div class="ps-item"><span class="ps-icon">📊</span><span class="ps-text">About 1 in 5 big prizes in Europe is won by a group (UK National Lottery estimate)</span></div>
+      </div>
+      <p class="curiosity-note">Sources: euro-millions.com, UK National Lottery, Santa Casa and public cases. Most winners choose to stay anonymous, so the data is partial.</p>
     </div>
 
-    <div class="curiosity-block pt-only" style="margin-top:18px;">
-      <div class="curiosity-title">&#9654; Qual a probabilidade de não sair a ninguém e o jackpot aumentar?</div>
-      <p class="curiosity-text">
-        A hipótese de <b>uma aposta específica</b> ganhar o jackpot é 1 em 139 838 160. Mas o sorteio tem milhões de apostas — a probabilidade de <em>nenhuma</em> ganhar depende de quantas apostas são vendidas em toda a Europa por sorteio.
-      </p>
-      <p class="curiosity-text">
-        A EuroMillions não divulga o número exacto de apostas por sorteio, mas fontes públicas estimam entre <b>50 a 120 milhões de apostas</b> por sorteio (varia muito com o valor do jackpot — jackpots maiores atraem mais jogadores). Com esses valores:
-      </p>
-      <div class="rollover-grid" id="rolloverGrid"></div>
-      <p class="curiosity-text" style="margin-top:14px;">
-        Ou seja: <b>na maioria dos sorteios com jackpot baixo, o jackpot não sai</b> — o que explica porque cresce durante semanas. Com jackpots muito altos (€150M+), a afluência de apostas aumenta tanto que a probabilidade de rollover desce para ~20–40%.
-      </p>
-      <p class="curiosity-text">
-        O jackpot actual (~€89M) tem uma probabilidade de rollover de cerca de <b id="currentRollover">…</b>. Para chegar ao máximo de €250M precisas de semanas consecutivas de rollover — cada uma com ~55–70% de probabilidade com apostas típicas.
-      </p>
-      <p class="curiosity-note">
-        Cálculo: P(nenhum ganha) = (1 − 1/139 838 160)<sup>N apostas</sup>. Exemplo: N=70M → ≈60%; N=120M → ≈42%. Os valores de N são estimativas — a EuroMillions não publica os totais exactos de apostas por sorteio.
-      </p>
-    </div>
+    <!-- Probabilidade de rollover (gerado em renderCuriosities) -->
+    <div class="curiosity-block" id="rollBlock" style="margin-top:18px;"></div>
 
   </div>
 
@@ -848,7 +790,7 @@
     <!-- Atalhos de prémio -->
     <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:8px;">Prémio</div>
     <div class="split-prize-btns">
-      <button class="prize-btn on" data-prize="89000000" onclick="setPrize(this)">🏆 Jackpot estimado &nbsp;€89M</button>
+      <button class="prize-btn on" id="prizeJackpot" data-prize="141000000" onclick="setPrize(this)">🏆 Jackpot estimado &nbsp;€141M</button>
       <button class="prize-btn" data-prize="500000" onclick="setPrize(this)">🥈 2.º prémio (indicativo) &nbsp;€500k</button>
       <button class="prize-btn" data-prize="0" onclick="setPrize(this)">✏️ Outro valor</button>
     </div>
@@ -856,45 +798,30 @@
       <label for="splitPrize">Valor do prémio (€)</label>
       <div class="split-prize-input">
         <span>€</span>
-        <input id="splitPrize" type="number" min="0" step="1" value="89000000" inputmode="decimal" oninput="onPrizeInput()">
+        <input id="splitPrize" type="number" min="0" step="1" value="141000000" inputmode="decimal" oninput="onPrizeInput()">
       </div>
       <span id="prize2note" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);display:none;">O 2.º prémio (5 nºs + 1 ★) é variável — tipicamente €200k–€800k. Edita o valor real após o sorteio.</span>
     </div>
 
-    <!-- Aposta -->
+    <!-- Quantas pessoas -->
     <div class="split-stake-row">
-      <label for="splitStake">A minha aposta</label>
+      <label for="splitPeople">Quantas pessoas dividem o prémio</label>
       <div class="split-prize-input">
-        <span>€</span>
-        <input id="splitStake" type="number" min="0" step="2.5" value="5" inputmode="decimal" oninput="calcSplit()">
+        <input id="splitPeople" class="split-count" type="number" min="1" max="100" step="1" value="1" inputmode="numeric" oninput="calcSplit()">
       </div>
-      <label for="splitTotal" style="margin-left:8px;">Total do grupo</label>
-      <div class="split-prize-input">
-        <span>€</span>
-        <input id="splitTotal" type="number" min="0" step="2.5" value="5" inputmode="decimal" oninput="calcSplit()">
-      </div>
-    </div>
-
-    <!-- Quem jogou -->
-    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:10px;">Quem apostou — selecciona para ver a parte de cada um</div>
-    <div class="split-friends" id="friendBtns">
-      <button class="friend-btn" data-name="P1" onclick="toggleFriend(this)"><span class="fb-check"></span><span>Jogador 1</span></button>
-      <button class="friend-btn" data-name="P2" onclick="toggleFriend(this)"><span class="fb-check"></span><span>Jogador 2</span></button>
-      <button class="friend-btn" data-name="P3" onclick="toggleFriend(this)"><span class="fb-check"></span><span>Jogador 3</span></button>
-      <button class="friend-btn" data-name="P4" onclick="toggleFriend(this)"><span class="fb-check"></span><span>Jogador 4</span></button>
     </div>
 
     <div class="split-results" id="splitResults"></div>
 
     <p class="split-note">
-      A partilha é feita em partes iguais entre as pessoas selecionadas. Prémios acima de <b style="color:var(--red)">€5.000 pagam 20% de imposto do selo</b> em Portugal (descontado pela Santa Casa). Abaixo de €5.000 estão isentos. Confirma com um contabilista.
+      A partilha é feita em partes iguais entre o número de pessoas indicado. Prémios acima de <b style="color:var(--red)">€5.000 pagam 20% de imposto do selo</b> em Portugal (descontado pela Santa Casa). Abaixo de €5.000 estão isentos. Confirma com um contabilista.
     </p>
   </div>
 
   <!-- ── HISTÓRICO DE JOGOS ── -->
   <div class="sec-head" style="margin-top:38px;">
     <h2>Histórico de jogos</h2>
-    <span class="hint">registo do grupo</span>
+    <span class="hint">guardado só neste browser</span>
   </div>
 
   <div class="hist-section">
@@ -903,15 +830,6 @@
       <div class="hist-field">
         <label>Data</label>
         <input type="date" id="hDate">
-      </div>
-      <div class="hist-field">
-        <label>Quem apostou</label>
-        <select id="hWho" multiple size="4" style="height:auto;min-width:120px;">
-          <option value="P1">Jogador 1</option>
-          <option value="P2">Jogador 2</option>
-          <option value="P3">Jogador 3</option>
-          <option value="P4">Jogador 4</option>
-        </select>
       </div>
       <div class="hist-field">
         <label>Total apostado (€)</label>
@@ -940,7 +858,6 @@
         <thead>
           <tr>
             <th>Data</th>
-            <th>Quem apostou</th>
             <th>Chaves jogadas</th>
             <th>Apostado</th>
             <th>Ganho</th>
@@ -963,8 +880,12 @@
   </div>
 
   <div class="disclaimer">
-    <b>Aviso:</b> o EuroMillions é um sorteio genuinamente aleatório. Nenhuma estratégia — cobertura, frequências históricas ou qualquer outro método — aumenta a probabilidade de acertar o jackpot (1 em 139 838 160 por aposta). A cobertura máxima reduz repetições de números entre chaves, não a aleatoriedade do sorteio. O valor do jackpot é uma estimativa a 30 out 2026; confirma em <a class="footlink" href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">Jogos Santa Casa</a>. Joga com moderação. +18.
+    <b>Aviso:</b> o EuroMillions é um sorteio genuinamente aleatório. Nenhuma estratégia — cobertura, frequências históricas ou qualquer outro método — aumenta a probabilidade de acertar o jackpot (1 em 139 838 160 por aposta). A cobertura máxima reduz repetições de números entre chaves, não a aleatoriedade do sorteio. O valor do jackpot é uma estimativa a 7 nov 2026; confirma em <a class="footlink" href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">Jogos Santa Casa</a>. Joga com moderação. +18.
   </div>
+
+  <footer class="site-foot">
+    <span class="pt-only">Um projeto de </span><span class="en-only">A project by </span><a href="https://quintopontocardeal.org/" target="_blank" rel="noopener">Quinto Ponto Cardeal</a> · quintopontocardeal.org
+  </footer>
 </div>
 
 <script>
@@ -1024,8 +945,8 @@ const EN_UNITS = {
 "Factor vs. 1 simples": "Factor vs. 1 single",
 "Tabela de referência — apostas e custo por combinação": "Reference table: lines and cost per combination",
 "Cada célula: <b>nº apostas<\/b> · custo €. Célula activa destacada a dourado.": "Each cell: <b>no. of lines<\/b> · cost in €. Active cell highlighted in gold.",
-"Curiosidades estatísticas": "Records",
-"terça vs sexta · maiores jackpots": "the biggest jackpots ever",
+"Curiosidades estatísticas": "Fun facts",
+"terça vs sexta · maiores jackpots": "Tuesday vs Friday · biggest jackpots",
 "▶ Os maiores jackpots de sempre": "▶ The biggest jackpots ever",
 "O jackpot máximo (teto) é de <b>€250 milhões<\/b> e já foi atingido 3 vezes, todas em 2025. Os 10 maiores jackpots ganhos de sempre:": "The maximum jackpot (cap) is <b>€250 million<\/b> and it has been hit 3 times, all in 2025. The 10 biggest jackpots ever won:",
 "Valor": "Amount",
@@ -1036,25 +957,13 @@ const EN_UNITS = {
 "E se saísse? Com quanto ficava cada um?": "What if it hit? How much would each one get?",
 "partilha &amp; impostos": "split &amp; taxes",
 "Prémio": "Prize",
-"🏆 Jackpot estimado &nbsp;€89M": "🏆 Estimated jackpot &nbsp;€89M",
+"Quantas pessoas dividem o prémio": "How many people share the prize",
 "🥈 2.º prémio (indicativo) &nbsp;€500k": "🥈 2nd prize (indicative) &nbsp;€500k",
 "✏️ Outro valor": "✏️ Other amount",
 "O 2.º prémio (5 nºs + 1 ★) é variável — tipicamente €200k–€800k. Edita o valor real após o sorteio.": "The 2nd prize (5 numbers + 1 ★) varies, typically €200k–€800k. Enter the real amount after the draw.",
-"A minha aposta": "My stake",
-"Total do grupo": "Group total",
-"Quem apostou — selecciona para ver a parte de cada um": "Who played: select to see each person's share",
-"<span class=\"fb-check\"><\/span><span>Jogador 1<\/span>": "<span class=\"fb-check\"><\/span><span>Player 1<\/span>",
-"<span class=\"fb-check\"><\/span><span>Jogador 2<\/span>": "<span class=\"fb-check\"><\/span><span>Player 2<\/span>",
-"<span class=\"fb-check\"><\/span><span>Jogador 3<\/span>": "<span class=\"fb-check\"><\/span><span>Player 3<\/span>",
-"<span class=\"fb-check\"><\/span><span>Jogador 4<\/span>": "<span class=\"fb-check\"><\/span><span>Player 4<\/span>",
-"A partilha é feita em partes iguais entre as pessoas selecionadas. Prémios acima de <b style=\"color:var(--red)\">€5.000 pagam 20% de imposto do selo<\/b> em Portugal (descontado pela Santa Casa). Abaixo de €5.000 estão isentos. Confirma com um contabilista.": "The prize is split in equal shares among the people selected. Prizes above <b style=\"color:var(--red)\">€5,000 pay 20% stamp duty<\/b> in Portugal (withheld by Santa Casa). Below €5,000 they are tax-free. Rules differ by country, so check with an accountant.",
+"A partilha é feita em partes iguais entre o número de pessoas indicado. Prémios acima de <b style=\"color:var(--red)\">€5.000 pagam 20% de imposto do selo<\/b> em Portugal (descontado pela Santa Casa). Abaixo de €5.000 estão isentos. Confirma com um contabilista.": "The prize is split in equal shares among the number of people you enter. Prizes above <b style=\"color:var(--red)\">€5,000 pay 20% stamp duty<\/b> in Portugal (withheld by Santa Casa). Below €5,000 they are tax-free. Rules differ by country, so check with an accountant.",
 "Histórico de jogos": "Bet history",
-"registo do grupo": "group record",
-"Quem apostou": "Who played",
-"Jogador 1": "Player 1",
-"Jogador 2": "Player 2",
-"Jogador 3": "Player 3",
-"Jogador 4": "Player 4",
+"guardado só neste browser": "saved only in this browser",
 "Total apostado (€)": "Total staked (€)",
 "Valor ganho (€)": "Amount won (€)",
 "Chaves jogadas <span style=\"font-weight:400;text-transform:none;letter-spacing:0;\">(opcional · ex: 3 12 25 44 48 ★2 9)<\/span>": "Lines played <span style=\"font-weight:400;text-transform:none;letter-spacing:0;\">(optional · e.g. 3 12 25 44 48 ★2 9)<\/span>",
@@ -1070,7 +979,7 @@ const EN_UNITS = {
 "Total ganho": "Total won",
 "Saldo": "Balance",
 "Retorno médio": "Average return",
-"<b>Aviso:<\/b> o EuroMillions é um sorteio genuinamente aleatório. Nenhuma estratégia — cobertura, frequências históricas ou qualquer outro método — aumenta a probabilidade de acertar o jackpot (1 em 139 838 160 por aposta). A cobertura máxima reduz repetições de números entre chaves, não a aleatoriedade do sorteio. O valor do jackpot é uma estimativa a 30 out 2026; confirma em <a class=\"footlink\" href=\"https://www.jogossantacasa.pt/web/JogarEuromilhoes/\" target=\"_blank\" rel=\"noopener\">Jogos Santa Casa<\/a>. Joga com moderação. +18.": "<b>Notice:<\/b> EuroMillions is a genuinely random draw. No strategy (coverage, historical frequencies or any other method) raises the probability of hitting the jackpot (1 in 139,838,160 per line). Maximum coverage reduces repeated numbers between lines, not the randomness of the draw. The jackpot figure is an estimate as of 30 Oct 2026; check <a class=\"footlink\" href=\"https://www.jogossantacasa.pt/web/JogarEuromilhoes/\" target=\"_blank\" rel=\"noopener\">Jogos Santa Casa<\/a>. Play responsibly. 18+.",
+"<b>Aviso:<\/b> o EuroMillions é um sorteio genuinamente aleatório. Nenhuma estratégia — cobertura, frequências históricas ou qualquer outro método — aumenta a probabilidade de acertar o jackpot (1 em 139 838 160 por aposta). A cobertura máxima reduz repetições de números entre chaves, não a aleatoriedade do sorteio. O valor do jackpot é uma estimativa a 7 nov 2026; confirma em <a class=\"footlink\" href=\"https://www.jogossantacasa.pt/web/JogarEuromilhoes/\" target=\"_blank\" rel=\"noopener\">Jogos Santa Casa<\/a>. Joga com moderação. +18.": "<b>Notice:<\/b> EuroMillions is a genuinely random draw. No strategy (coverage, historical frequencies or any other method) raises the probability of hitting the jackpot (1 in 139,838,160 per line). Maximum coverage reduces repeated numbers between lines, not the randomness of the draw. The jackpot figure is an estimate as of 7 Nov 2026; check <a class=\"footlink\" href=\"https://www.jogossantacasa.pt/web/JogarEuromilhoes/\" target=\"_blank\" rel=\"noopener\">Jogos Santa Casa<\/a>. Play responsibly. 18+.",
 "Mostrar prémios em": "Show prizes in",
 "Libra (£)": "Pound (£)",
 "Dólar ($)": "Dollar ($)",
@@ -1079,8 +988,8 @@ const EN_UNITS = {
 };
 const normH = s => s.replace(/\s+/g, ' ').trim();
 const INL = new Set(['B','EM','I','STRONG','SMALL','A','BR','SPAN','MARK','SUP','SUB','CODE']);
-const DYN_IDS = new Set(['curNote','statusText','nextDrawLabel','jackpotCap','lastDrawInfo','genHint','modeDesc','btnText','ctaNote','oLines','oJackpot','oAny','oCtx','mApostas','mCusto','mJackpot','mVs','mFormula','noteDraws','htStake','htWon','htBalance','htRet','currentRollover']);
-const SKIP_SEL = '#comboList,#hotSection,#splitResults,#histBody,#rolloverGrid,#multTableBody,#covSection,#recBody,.pt-only,#langBtn';
+const DYN_IDS = new Set(['prizeJackpot','curNote','statusText','nextDrawLabel','jackpotCap','lastDrawInfo','genHint','modeDesc','btnText','ctaNote','oLines','oJackpot','oAny','oCtx','mApostas','mCusto','mJackpot','mVs','mFormula','noteDraws','htStake','htWon','htBalance','htRet','currentRollover']);
+const SKIP_SEL = '#comboList,#hotSection,#splitResults,#histBody,#multTableBody,#covSection,#recBody,#dayBlock,#rollBlock,.pt-only,.en-only,#langBtn,.site-foot';
 function collectUnits() {
   const out = [];
   (function walk(el) {
@@ -1118,9 +1027,10 @@ function applyLang() {
   reflectStatus(); heroTexts(); renderLastDraw(); refreshModeTexts();
   if (lastRender) { renderCombos(lastRender.combos, lastRender.mode); if (lastRender.mode !== 'hot') renderCoverageMap(lastRender.combos); }
   if (DATA.numbers.length) renderHot();
-  setGenHint(); calcOdds(); buildMultTable(); updateMult(); calcSplit(); histRender(); renderRecords(); renderCurNote();
+  const pj = document.getElementById('prizeJackpot');
+  if (pj) { pj.dataset.prize = INFO.nextJackpot; pj.innerHTML = `🏆 ${L('Jackpot estimado', 'Estimated jackpot')} &nbsp;${fmtM(INFO.nextJackpot)}`; }
+  setGenHint(); calcOdds(); buildMultTable(); updateMult(); calcSplit(); histRender(); renderRecords(); renderCuriosities(); renderCurNote();
   document.querySelectorAll('.hkey-input').forEach((i, idx) => { i.placeholder = keyPh(idx + 1); });
-  document.querySelectorAll('.friend-btn').forEach(b => { const c = b.querySelector('.fb-check'); if (c) c.textContent = b.classList.contains('on') ? '✓' : ''; });
 }
 
 // ─── RECORDES / RECORDS (fonte: euro-millions.com/winners, 30 out 2026) ─────
@@ -1150,15 +1060,16 @@ function renderRecords() {
 }
 
 // ─── JOGO ────────────────────────────────────────────────────────────────────
-const INFO = { updated:'30 out 2026', nextDrawISO:'2026-10-30', nextJackpot:89000000, pricePerLine:2.5, jackpotOdds:139838160, anyPrizeOdds:13, drawHour:20, drawMinute:5 };
+const INFO = { updated:'7 nov 2026', updatedEn:'7 Nov 2026', nextDrawISO:'2026-11-10', nextJackpot:141000000, pricePerLine:2.5, jackpotOdds:139838160, anyPrizeOdds:13, drawHour:20, drawMinute:5 };
 
 // ─── DADOS ───────────────────────────────────────────────────────────────────
 const RESULTS_URL = 'https://raw.githubusercontent.com/daowa89/lottery-archive/main/eu/euromillions/results.csv';
+const LOCAL_CSV = 'data/euromilhoes.csv';  // cópia no próprio site, atualizada pelo workflow
 const CURRENT_FORMAT_FROM = '2016-09-27';
 const NUMBER_SNAPSHOT = [[1,88,62],[2,100,6],[3,97,31],[4,92,3],[5,99,10],[6,96,10],[7,101,3],[8,99,41],[9,98,13],[10,109,31],[11,92,69],[12,100,27],[13,105,55],[14,100,3],[15,101,101],[16,100,10],[17,116,10],[18,88,13],[19,107,38],[20,111,27],[21,112,143],[22,71,3],[23,113,3],[24,101,104],[25,101,20],[26,99,24],[27,109,73],[28,94,59],[29,115,48],[30,91,52],[31,97,17],[32,96,34],[33,91,76],[34,106,38],[35,111,17],[36,91,34],[37,98,20],[38,92,27],[39,101,108],[40,84,52],[41,103,31],[42,121,13],[43,86,31],[44,112,6],[45,105,27],[46,103,6],[47,102,45],[48,109,80],[49,93,10],[50,94,97]];
 const STAR_SNAPSHOT = [[1,147,39],[2,193,4],[3,192,49],[4,148,49],[5,156,18],[6,180,14],[7,161,7],[8,169,18],[9,168,7],[10,155,67],[11,158,32],[12,173,4]];
 const LAST_DRAW_SNAPSHOT = { date:'2026-06-16', nums:[18,25,31,37,45], stars:[4,9] };
-let DATA = { numbers:[], stars:[], draws:0, lastDraw:null, lastNums:[], lastStars:[], live:false };
+let DATA = { numbers:[], stars:[], draws:0, lastDraw:null, lastNums:[], lastStars:[], live:false, tue:0, fri:0 };
 
 function snapStats(snap,draws){ return snap.map(([number,freq,days])=>({ number,freq,frequency:freq/draws,days })); }
 function useSnapshot(){ DATA={ numbers:snapStats(NUMBER_SNAPSHOT,1000), stars:snapStats(STAR_SNAPSHOT,1000), draws:1000, lastDraw:new Date(LAST_DRAW_SNAPSHOT.date), lastNums:LAST_DRAW_SNAPSHOT.nums, lastStars:LAST_DRAW_SNAPSHOT.stars, live:false }; }
@@ -1178,15 +1089,18 @@ function buildStats(rows){
   let last='0000-00-00',lastRow=rows[rows.length-1];
   rows.forEach(r=>{ if(r.date>last){last=r.date;lastRow=r;} r.nums.forEach(n=>{nC[n]++;if(!nL[n]||r.date>nL[n])nL[n]=r.date;}); r.stars.forEach(s=>{sC[s]++;if(!sL[s]||r.date>sL[s])sL[s]=r.date;}); });
   const draws=rows.length, lastDate=new Date(last), days=d=>d?Math.round((lastDate-new Date(d))/86400000):9999;
+  let tue=0,fri=0; rows.forEach(r=>{const wd=new Date(r.date+'T12:00:00Z').getUTCDay(); if(wd===2)tue++; else if(wd===5)fri++;});
   const numbers=[],stars=[];
   for(let n=1;n<=50;n++) numbers.push({number:n,freq:nC[n],frequency:nC[n]/draws,days:days(nL[n])});
   for(let s=1;s<=12;s++) stars.push({number:s,freq:sC[s],frequency:sC[s]/draws,days:days(sL[s])});
-  return {numbers,stars,draws,lastDraw:lastDate,lastNums:lastRow.nums,lastStars:lastRow.stars};
+  return {numbers,stars,draws,lastDraw:lastDate,lastNums:lastRow.nums,lastStars:lastRow.stars,tue,fri};
 }
 async function loadData(){
-  try{ const res=await fetch(RESULTS_URL,{cache:'no-store'}); if(!res.ok) throw 0; const rows=parseCSV(await res.text()); if(rows.length<100) throw 0; DATA={...buildStats(rows),live:true}; }
-  catch{ useSnapshot(); }
-  reflectStatus(); renderLastDraw(); refreshModeTexts();
+  // 1) fonte em direto; 2) cópia local do site; 3) instantâneo dentro desta página
+  const get=async url=>{ const res=await fetch(url,{cache:'no-store'}); if(!res.ok) throw 0; const rows=parseCSV(await res.text()); if(rows.length<100) throw 0; return buildStats(rows); };
+  try{ DATA={...await get(RESULTS_URL),live:true}; }
+  catch{ try{ DATA={...await get(LOCAL_CSV),live:false}; } catch{ useSnapshot(); } }
+  reflectStatus(); renderLastDraw(); refreshModeTexts(); renderCuriosities();
 }
 
 // ─── FORMATAÇÃO ──────────────────────────────────────────────────────────────
@@ -1291,9 +1205,24 @@ function heroTexts() {
 let heroDone = false;
 function initHero() {
   heroTexts();
-  const el = document.getElementById('jackpot'), target = INFO.nextJackpot, t0 = performance.now(), dur = 1100;
-  if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) { el.textContent = money(target); heroDone = true; }
-  else { const tick = t => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3); el.textContent = money(Math.round(target * e)); if (p < 1) requestAnimationFrame(tick); else heroDone = true; }; requestAnimationFrame(tick); }
+  const el = document.getElementById('jackpot'), target = INFO.nextJackpot, dur = 1100;
+  const finish = () => { heroDone = true; el.textContent = money(target); };
+  if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) finish();
+  else {
+    // O tempo conta a partir do primeiro frame e o progresso fica entre 0 e 1,
+    // para nunca mostrar valores negativos. Se o browser não pintar frames
+    // (separador em segundo plano, pré-visualizações), mostra o valor final.
+    let t0 = null;
+    const tick = t => {
+      if (heroDone) return;
+      if (t0 === null) t0 = t;
+      const p = Math.max(0, Math.min(1, (t - t0) / dur)), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = money(Math.round(target * e));
+      if (p < 1) requestAnimationFrame(tick); else finish();
+    };
+    requestAnimationFrame(tick);
+    setTimeout(() => { if (!heroDone) finish(); }, dur + 400);
+  }
   const pad = n => String(n).padStart(2, '0');
   const upd = () => { let diff = NEXT_DRAW - new Date(); if (diff < 0) diff = 0; document.getElementById('cdD').textContent = pad(Math.floor(diff / 86400000)); document.getElementById('cdH').textContent = pad(Math.floor(diff % 86400000 / 3600000)); document.getElementById('cdM').textContent = pad(Math.floor(diff % 3600000 / 60000)); document.getElementById('cdS').textContent = pad(Math.floor(diff % 60000 / 1000)); };
   upd(); setInterval(upd, 1000);
@@ -1351,78 +1280,118 @@ function validateCombination(numbers){
   return true;
 }
 
-// Hot: weighted sample from top 20
-function pickWeighted(pool,count,seed){
-  const bag=[]; pool.forEach(s=>{const w=Math.max(1,Math.round(s.freq));for(let i=0;i<w;i++)bag.push(s.number);});
-  const sel=[]; let a=0;
-  while(sel.length<count&&a<20000){const idx=Math.floor((Math.sin(seed*1337+a*79)*0.5+0.5)*bag.length),n=bag[idx];if(n&&!sel.includes(n))sel.push(n);a++;}
-  let i=0; while(sel.length<count&&i<pool.length){if(!sel.includes(pool[i].number))sel.push(pool[i].number);i++;}
-  return sel;
+// ─── ALEATORIEDADE ───────────────────────────────────────────────────────────
+// Cada clique em "Gerar" usa uma semente nova de 32 bits tirada de
+// crypto.getRandomValues (a fonte aleatória do browser). Assim, duas pessoas
+// que carreguem ao mesmo tempo recebem chaves diferentes, e a mesma pessoa
+// recebe chaves novas a cada clique. As funções abaixo são as mesmas de
+// analysis/prng.js, que tem testes próprios (node analysis/tests.js).
+function freshSeed() {
+  try { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0]; }
+  catch (e) { return (Math.random() * 0x100000000) >>> 0; }
 }
-function makeHotCombo(numberPool,starPool,idx){
-  const seed=Date.now()+idx*7919; let nums=[];
-  for(let a=0;a<250;a++){const c=pickWeighted(numberPool,5,seed+a*17);if(c.length===5&&validateCombination(c)){nums=c.sort((x,y)=>x-y);break;}}
-  if(nums.length<5) nums=numberPool.slice(0,5).map(s=>s.number).sort((x,y)=>x-y);
-  const stars=pickWeighted(starPool,2,seed+4001).sort((x,y)=>x-y);
-  const map=new Map(numberPool.map(s=>[s.number,s]));
-  const avg=nums.reduce((t,n)=>t+(map.get(n)?.frequency||0),0)/nums.length;
-  return {nums,stars,avg,newCovered:0,newStarsCovered:0};
+function mulberry32(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s |= 0; s = (s + 0x6d2b79f5) | 0;
+    let z = Math.imul(s ^ (s >>> 15), 1 | s);
+    z ^= z + Math.imul(z ^ (z >>> 7), 61 | z);
+    return ((z ^ (z >>> 14)) >>> 0) / 0x100000000;
+  };
+}
+const rngInt = (rng, n) => Math.floor(rng() * n);
+function shuffle(arr, rng) {
+  for (let i = arr.length - 1; i > 0; i--) { const j = rngInt(rng, i + 1); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+  return arr;
+}
+function weightedSampleWithoutReplacement(pool, count, rng) {
+  const remaining = pool.map(item => ({ ...item })), selected = [];
+  for (let i = 0; i < count && remaining.length > 0; i++) {
+    const total = remaining.reduce((t, x) => t + Math.max(1, x.freq), 0);
+    let r = rng() * total, idx = 0;
+    for (idx = 0; idx < remaining.length; idx++) { r -= Math.max(1, remaining[idx].freq); if (r <= 0) break; }
+    idx = Math.min(idx, remaining.length - 1);
+    selected.push(remaining[idx].number); remaining.splice(idx, 1);
+  }
+  return selected;
 }
 
-// Coverage: greedy set cover weighted by frequency
-function makeCoverageCombo(allNums,allStars,coveredNums,coveredStars,seed){
-  const freqMapN=new Map(allNums.map(s=>[s.number,s.freq]));
-  const freqMapS=new Map(allStars.map(s=>[s.number,s.freq]));
-  const maxFreqN=Math.max(...allNums.map(s=>s.freq));
-  const maxFreqS=Math.max(...allStars.map(s=>s.freq));
+// Hot: amostragem ponderada (pela frequência) dos 20 números mais sorteados
+function makeHotCombo(numberPool, starPool, rng) {
+  let nums = [];
+  for (let a = 0; a < 250; a++) { const c = weightedSampleWithoutReplacement(numberPool, 5, rng); if (c.length === 5 && validateCombination(c)) { nums = c.sort((x, y) => x - y); break; } }
+  if (nums.length < 5) nums = shuffle(numberPool.map(s => s.number), rng).slice(0, 5).sort((x, y) => x - y);
+  const stars = weightedSampleWithoutReplacement(starPool, 2, rng).sort((x, y) => x - y);
+  const map = new Map(numberPool.map(s => [s.number, s]));
+  const avg = nums.reduce((t, n) => t + (map.get(n)?.frequency || 0), 0) / nums.length;
+  return { nums, stars, avg, newCovered: 0, newStarsCovered: 0 };
+}
 
-  function scoreN(n){ return (coveredNums.has(n)?0:3) + (freqMapN.get(n)||0)/maxFreqN + (Math.sin(seed*997+n*317)*0.5+0.5)*0.25; }
-  function scoreS(s){ return (coveredStars.has(s)?0:3) + (freqMapS.get(s)||0)/maxFreqS + (Math.sin(seed*997+s*991)*0.5+0.5)*0.25; }
+// Cobertura: set cover guloso, a preferir números ainda não cobertos
+function makeCoverageCombo(allNums, allStars, coveredNums, coveredStars, rng) {
+  const freqMapN = new Map(allNums.map(s => [s.number, s.freq]));
+  const freqMapS = new Map(allStars.map(s => [s.number, s.freq]));
+  const maxFreqN = Math.max(...allNums.map(s => s.freq)) || 1;
+  const maxFreqS = Math.max(...allStars.map(s => s.freq)) || 1;
+  // Um ruído por número e por estrela, sorteado uma vez por chave
+  const noiseN = {}, noiseS = {};
+  for (let n = 1; n <= 50; n++) noiseN[n] = rng();
+  for (let t = 1; t <= 12; t++) noiseS[t] = rng();
+  const scoreN = n => (coveredNums.has(n) ? 0 : 3) + (freqMapN.get(n) || 0) / maxFreqN + noiseN[n] * 0.5;
+  const scoreS = t => (coveredStars.has(t) ? 0 : 3) + (freqMapS.get(t) || 0) / maxFreqS * 0.5 + noiseS[t] * 1.5;
 
-  const ranked=[...Array(50)].map((_,i)=>i+1).sort((a,b)=>scoreN(b)-scoreN(a));
-  let best=null;
-  for(let attempt=0;attempt<600;attempt++){
-    const noise=(Math.sin(seed+attempt*7919)*0.5+0.5);
-    const poolSize=18+Math.floor(noise*10);
-    const pool=[...ranked.slice(0,poolSize)];
-    const pick=[];
-    while(pick.length<5&&pool.length>0){
-      const r=(Math.sin(seed*1337+attempt*79+pick.length*113)*0.5+0.5);
-      const idx=Math.floor(r*Math.min(8,pool.length));
-      pick.push(pool.splice(idx,1)[0]);
-    }
-    if(pick.length===5&&validateCombination(pick)){
-      const nc=pick.filter(n=>!coveredNums.has(n)).length;
-      if(!best||nc>best.nc) best={nums:pick.sort((a,b)=>a-b),nc};
-      if(nc>=5) break;
+  const ranked = [...Array(50)].map((_, i) => i + 1).sort((a, b) => scoreN(b) - scoreN(a));
+  let best = null;
+  for (let attempt = 0; attempt < 600; attempt++) {
+    const pool = ranked.slice(0, 18 + rngInt(rng, 10)), pick = [];
+    while (pick.length < 5 && pool.length > 0) pick.push(pool.splice(rngInt(rng, Math.min(8, pool.length)), 1)[0]);
+    if (pick.length === 5 && validateCombination(pick)) {
+      const nc = pick.filter(n => !coveredNums.has(n)).length;
+      if (!best || nc > best.nc) best = { nums: pick.sort((a, b) => a - b), nc };
+      if (nc >= 5) break;
     }
   }
-  if(!best) best={nums:ranked.slice(0,5).sort((a,b)=>a-b),nc:0};
+  if (!best) best = { nums: ranked.slice(0, 5).sort((a, b) => a - b), nc: 0 };
 
-  const starRanked=[...Array(12)].map((_,i)=>i+1).sort((a,b)=>scoreS(b)-scoreS(a));
-  const stars=starRanked.slice(0,2).sort((a,b)=>a-b);
-  const nsc=stars.filter(s=>!coveredStars.has(s)).length;
-  return {nums:best.nums,stars,avg:best.nums.reduce((t,n)=>t+(freqMapN.get(n)||0)/maxFreqN,0)/5,newCovered:best.nc,newStarsCovered:nsc};
+  const stars = [...Array(12)].map((_, i) => i + 1).sort((a, b) => scoreS(b) - scoreS(a)).slice(0, 2).sort((a, b) => a - b);
+  const nsc = stars.filter(t => !coveredStars.has(t)).length;
+  return { nums: best.nums, stars, avg: best.nums.reduce((t, n) => t + (freqMapN.get(n) || 0) / maxFreqN, 0) / 5, newCovered: best.nc, newStarsCovered: nsc };
 }
 
-function generateHot(count){
-  const numberPool=[...DATA.numbers].sort((a,b)=>b.freq-a.freq).slice(0,20);
-  const starPool=[...DATA.stars].sort((a,b)=>b.freq-a.freq).slice(0,8);
-  const combos=[],used=new Set();
-  for(let i=0;i<count;i++){
-    let c,t=0; do{c=makeHotCombo(numberPool,starPool,i*100+t);t++;}while(used.has(c.nums.join(','))&&t<60);
-    used.add(c.nums.join(',')); combos.push(c);
+function generateHot(count, rng) {
+  const numberPool = [...DATA.numbers].sort((a, b) => b.freq - a.freq).slice(0, 20);
+  const starPool = [...DATA.stars].sort((a, b) => b.freq - a.freq).slice(0, 8);
+  const combos = [], used = new Set();
+  for (let i = 0; i < count; i++) {
+    let c, t = 0;
+    do { c = makeHotCombo(numberPool, starPool, rng); t++; } while (used.has(c.nums.join(',') + '|' + c.stars.join(',')) && t < 60);
+    used.add(c.nums.join(',') + '|' + c.stars.join(',')); combos.push(c);
   }
   return combos;
 }
 
-function generateCoverage(count){
-  const coveredNums=new Set(),coveredStars=new Set();
-  const combos=[];
-  for(let i=0;i<count;i++){
-    const seed=Date.now()+i*7919;
-    const c=makeCoverageCombo(DATA.numbers,DATA.stars,coveredNums,coveredStars,seed);
-    c.nums.forEach(n=>coveredNums.add(n)); c.stars.forEach(s=>coveredStars.add(s));
+function generateCoverage(count, rng) {
+  const coveredNums = new Set(), coveredStars = new Set(), combos = [];
+  // 10 chaves: baralha os 50 números e divide-os em 10 grupos de 5, até todos
+  // os grupos passarem as regras; assim cada número aparece exatamente uma vez
+  if (count * 5 === 50) {
+    for (let a = 0; a < 5000; a++) {
+      const all = shuffle([...Array(50)].map((_, i) => i + 1), rng);
+      const groups = [...Array(10)].map((_, g) => all.slice(g * 5, g * 5 + 5));
+      if (!groups.every(validateCombination)) continue;
+      const fMap = new Map(DATA.numbers.map(s => [s.number, s.freq])), maxF = Math.max(...DATA.numbers.map(s => s.freq)) || 1;
+      return groups.map(g => {
+        const st = makeCoverageCombo(DATA.numbers, DATA.stars, coveredNums, coveredStars, rng).stars;
+        const nums = [...g].sort((x, y) => x - y);
+        const nc = nums.filter(n => !coveredNums.has(n)).length, nsc = st.filter(t => !coveredStars.has(t)).length;
+        nums.forEach(n => coveredNums.add(n)); st.forEach(t => coveredStars.add(t));
+        return { nums, stars: st, avg: nums.reduce((t, n) => t + (fMap.get(n) || 0) / maxF, 0) / 5, newCovered: nc, newStarsCovered: nsc };
+      });
+    }
+  }
+  for (let i = 0; i < count; i++) {
+    const c = makeCoverageCombo(DATA.numbers, DATA.stars, coveredNums, coveredStars, rng);
+    c.nums.forEach(n => coveredNums.add(n)); c.stars.forEach(t => coveredStars.add(t));
     combos.push(c);
   }
   return combos;
@@ -1503,10 +1472,11 @@ async function generate(){
   if(DATA.numbers.length===0) await loadData();
   await new Promise(r=>setTimeout(r,350));
 
+  const rng=mulberry32(freshSeed());  // semente nova a cada clique
   let combos;
-  if(currentMode==='hot') combos=generateHot(5);
-  else if(currentMode==='cov5') combos=generateCoverage(5);
-  else combos=generateCoverage(10);
+  if(currentMode==='hot') combos=generateHot(5,rng);
+  else if(currentMode==='cov5') combos=generateCoverage(5,rng);
+  else combos=generateCoverage(10,rng);
 
   renderCombos(combos,currentMode);
   if(currentMode!=='hot') renderCoverageMap(combos);
@@ -1543,19 +1513,11 @@ function initCalc(){
 // ─── PARTILHA & HISTÓRICO ────────────────────────────────────────────────────
 const TAX_THRESHOLD = 5000;
 const TAX_RATE      = 0.20;
-const FRIENDS = ['P1','P2','P3','P4'];
-const friendLabel = id => /^P\d$/.test(id) ? L('Jogador ','Player ') + id[1] : id;
 
 function applyTax(gross) {
   if (gross <= TAX_THRESHOLD) return { gross, tax:0, net:gross };
   const tax = gross * TAX_RATE;
   return { gross, tax, net: gross - tax };
-}
-
-function toggleFriend(btn) {
-  btn.classList.toggle('on');
-  btn.querySelector('.fb-check').textContent = btn.classList.contains('on') ? '✓' : '';
-  calcSplit();
 }
 
 function setPrize(btn) {
@@ -1581,51 +1543,35 @@ function onPrizeInput() {
 }
 
 function calcSplit() {
-  const prize      = parseFloat(document.getElementById('splitPrize').value) || 0;
-  const totalStake = parseFloat(document.getElementById('splitTotal').value) || 0;
-  const active     = [...document.querySelectorAll('#friendBtns .friend-btn.on')].map(b => b.dataset.name);
-  const out        = document.getElementById('splitResults');
+  const prize  = parseFloat(document.getElementById('splitPrize').value) || 0;
+  const people = Math.max(1, Math.min(100, Math.floor(parseFloat(document.getElementById('splitPeople').value) || 1)));
+  const out    = document.getElementById('splitResults');
 
-  if (prize <= 0 || active.length === 0) {
-    out.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--muted);padding:12px 0">' +
-      (prize <= 0 ? L('Introduz um valor de prémio acima.','Enter a prize amount above.') : L('Selecciona pelo menos uma pessoa para ver a partilha.','Select at least one person to see the split.')) + '</div>';
+  if (prize <= 0) {
+    out.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--muted);padding:12px 0">' + L('Introduz um valor de prémio acima.','Enter a prize amount above.') + '</div>';
     return;
   }
 
-  // Prémio dividido em partes iguais entre os seleccionados.
-  // Se só 1 pessoa → recebe o prémio todo.
-  const perPerson = prize / active.length;
-
-  function fmtEur(v) { return money(v); }
-  function taxBlock(t) {
-    const taxed = t.gross > TAX_THRESHOLD;
-    return `<div class="split-tax-row">
-      <div class="split-tax-item"><span class="tk">${L('bruto','gross')}</span><span class="tv">${fmtEur(t.gross)}</span></div>
-      ${taxed
-        ? `<div class="split-tax-item"><span class="tk">${L('Imposto do selo 20%','Stamp duty 20%')}</span><span class="tv tax">- ${fmtEur(t.tax)}</span></div>
-           <div class="split-tax-item"><span class="tk">${L('líquido','net')}</span><span class="tv net">${fmtEur(t.net)}</span></div>`
-        : `<div class="split-tax-item"><span class="tv net">${L('isento de imposto (≤ €5.000)','tax-free (≤ €5,000)')}</span></div>`}
-    </div>`;
-  }
-
-  const groupLabel = active.length === 1
-    ? L('prémio total (sozinho)','full prize (solo)')
-    : L(`1/${active.length} partes iguais${totalStake > 0 ? ' · grupo ' + eur0.format(Math.round(totalStake)) : ''}`,`1/${active.length} equal shares${totalStake > 0 ? ' · group ' + eur0.format(Math.round(totalStake)) : ''}`);
-
-  let html = '';
-  active.forEach(name => {
-    const t = applyTax(perPerson);
-    html += `<div class="split-person">
+  // Prémio dividido em partes iguais; o imposto aplica-se à parte de cada pessoa
+  const t = applyTax(prize / people);
+  const taxed = t.gross > TAX_THRESHOLD;
+  const label = people === 1
+    ? L('prémio total (uma pessoa)','full prize (one person)')
+    : L(`1/${people} em partes iguais`,`1/${people} in equal shares`);
+  out.innerHTML = `<div class="split-person">
       <div class="split-row-head">
-        <span class="split-name">🤝 ${friendLabel(name)}</span>
-        <span class="split-stake-badge">${groupLabel}</span>
+        <span class="split-name">🤝 ${people === 1 ? L('Uma pessoa','One person') : L(`Cada uma das ${people} pessoas`,`Each of the ${people} people`)}</span>
+        <span class="split-stake-badge">${label}</span>
       </div>
-      <div class="split-gross">${fmtEur(t.gross)}</div>
-      ${taxBlock(t)}
+      <div class="split-gross">${money(t.gross)}</div>
+      <div class="split-tax-row">
+        <div class="split-tax-item"><span class="tk">${L('bruto','gross')}</span><span class="tv">${money(t.gross)}</span></div>
+        ${taxed
+          ? `<div class="split-tax-item"><span class="tk">${L('Imposto do selo 20%','Stamp duty 20%')}</span><span class="tv tax">- ${money(t.tax)}</span></div>
+             <div class="split-tax-item"><span class="tk">${L('líquido','net')}</span><span class="tv net">${money(t.net)}</span></div>`
+          : `<div class="split-tax-item"><span class="tv net">${L('isento de imposto (≤ €5.000)','tax-free (≤ €5,000)')}</span></div>`}
+      </div>
     </div>`;
-  });
-
-  out.innerHTML = html;
 }
 
 // ─── HISTÓRICO ────────────────────────────────────────────────────────────────
@@ -1670,15 +1616,13 @@ function normaliseKey(s) {
 
 function histAdd() {
   const date  = document.getElementById('hDate').value;
-  const whoEl = document.getElementById('hWho');
-  const who   = [...whoEl.selectedOptions].map(o => o.value);
   const stake = parseFloat(document.getElementById('hStake').value) || 0;
   const won   = parseFloat(document.getElementById('hWon').value)   || 0;
   const keys  = hKeyRead();
-  if (!date || who.length === 0 || stake <= 0) {
-    alert(L('Preenche a data, selecciona pelo menos uma pessoa e indica o valor apostado.','Fill in the date, select at least one person and enter the amount staked.')); return;
+  if (!date || stake <= 0) {
+    alert(L('Preenche a data e indica o valor apostado.','Fill in the date and enter the amount staked.')); return;
   }
-  histData.push({ id: Date.now(), date, who, stake, won, keys });
+  histData.push({ id: Date.now(), date, stake, won, keys });
   histData.sort((a,b) => b.date.localeCompare(a.date));
   histSave();
   histRender();
@@ -1719,7 +1663,6 @@ function histRender() {
     const ret = r.stake > 0 ? ((r.won - r.stake) / r.stake * 100) : 0;
     const retClass = ret > 0 ? 'pos' : ret < 0 ? 'neg' : 'zero';
     const retStr = r.stake > 0 ? (ret >= 0 ? '+' : '') + ret.toFixed(0) + '%' : '—';
-    const whoStr = r.who.map(friendLabel).join(', ');
 
     const keysHtml = (r.keys && r.keys.length > 0)
       ? r.keys.map(k => {
@@ -1732,7 +1675,6 @@ function histRender() {
 
     return `<tr>
       <td>${fmtD(r.date)}</td>
-      <td>${whoStr}</td>
       <td class="hist-keys-cell">${keysHtml}</td>
       <td>${fmtE(r.stake)}</td>
       <td style="color:${r.won > 0 ? 'var(--green)' : 'var(--muted)'}">${fmtE(r.won)}</td>
@@ -1783,28 +1725,62 @@ function rolloverProb(nTickets) {
   return Math.exp(-nTickets / JACKPOT_ODDS) * 100;
 }
 
-function renderRolloverGrid() {
-  const scenarios = [
-    { label: 'Jackpot baixo (~€17–30M)',    n: 50e6,  note: '~50M apostas' },
-    { label: 'Jackpot médio (~€38M)',        n: 70e6,  note: '~70M apostas' },
-    { label: 'Jackpot alto (~€80M)',         n: 100e6, note: '~100M apostas' },
-    { label: 'Jackpot muito alto (~€130M)',  n: 120e6, note: '~120M apostas' },
-    { label: 'Jackpot máximo (~€200M+)',     n: 180e6, note: '~180M apostas' },
-    { label: 'Recorde (~€250M)',             n: 250e6, note: '~250M apostas' },
-  ];
-  const grid = document.getElementById('rolloverGrid');
-  if (!grid) return;
-  grid.innerHTML = scenarios.map(sc => {
-    const pct = rolloverProb(sc.n);
-    const cls = pct >= 65 ? 'hi' : pct >= 40 ? 'mid' : 'lo';
-    return `<div class="rv-box">
-      <div class="k">${sc.label}</div>
-      <div class="v ${cls}">${pct.toFixed(0)}%</div>
-      <div class="sub">prob. de rollover<br>${sc.note} vendidas</div>
-    </div>`;
-  }).join('');
-  const el = document.getElementById('currentRollover');
-  if (el) el.textContent = rolloverProb(100e6).toFixed(0) + '%';
+// Apostas vendidas por sorteio, estimadas a partir do jackpot (a EuroMillions não publica o total)
+const ROLL_SCEN = [
+  { max:30e6,     n:50e6,  pt:'Jackpot baixo (~€17 a 30 M)',   en:'Low jackpot (~€17M to 30M)' },
+  { max:60e6,     n:70e6,  pt:'Jackpot médio (~€40 M)',        en:'Medium jackpot (~€40M)' },
+  { max:100e6,    n:100e6, pt:'Jackpot alto (~€80 M)',         en:'High jackpot (~€80M)' },
+  { max:170e6,    n:120e6, pt:'Jackpot muito alto (~€130 M)',  en:'Very high jackpot (~€130M)' },
+  { max:240e6,    n:180e6, pt:'Jackpot máximo (~€200 M ou mais)', en:'Top jackpot (~€200M or more)' },
+  { max:Infinity, n:250e6, pt:'Teto (€250 M)',                 en:'Cap (€250M)' },
+];
+const fmtM = v => L('€' + num0.format(Math.round(v / 1e6)) + ' M', '€' + num0.format(Math.round(v / 1e6)) + 'M');
+
+function renderCuriosities() {
+  // Terça ou sexta: contagens do CSV e recordes divididos pelo dia da semana
+  const day = document.getElementById('dayBlock');
+  if (day) {
+    const rec = RECORDS.map(([amt, iso, ctry]) => ({ amt, iso, ctry, wd: new Date(iso + 'T12:00:00Z').getUTCDay() }));
+    const fmtD = iso => new Date(iso + 'T12:00:00Z').toLocaleDateString(LOC(), { timeZone:'UTC', day:'2-digit', month:'short', year:'numeric' });
+    const amtS = a => LANG === 'en' ? '€' + a + 'M' : '€' + String(a).replace('.', ',') + ' M';
+    const list = wd => rec.filter(r => r.wd === wd).map(r => `<div class="day-hi">&#127941; ${amtS(r.amt)}, ${fmtD(r.iso)} (${L(r.ctry[0], r.ctry[1])})</div>`).join('');
+    const nT = rec.filter(r => r.wd === 2).length, nF = rec.filter(r => r.wd === 5).length;
+    const has = DATA.tue > 0 || DATA.fri > 0;
+    const counts = has
+      ? L(`No formato atual (5/50 + 2/12, desde setembro de 2016) já se fizeram <b>${num0.format(DATA.tue)} sorteios à terça</b> e <b>${num0.format(DATA.fri)} à sexta</b>, praticamente o mesmo número, como seria de esperar com dois sorteios por semana.`,
+          `In the current format (5/50 + 2/12, since September 2016) there have been <b>${num0.format(DATA.tue)} Tuesday draws</b> and <b>${num0.format(DATA.fri)} Friday draws</b>, almost the same number, as you would expect with two draws a week.`)
+      : L('Desde 2011 há dois sorteios por semana, à terça e à sexta, por isso o número de sorteios em cada dia é praticamente igual.',
+          'Since 2011 there have been two draws a week, on Tuesday and Friday, so the number of draws on each day is almost the same.');
+    day.innerHTML = `
+      <div class="curiosity-title">&#9654; ${L('Os prémios saem mais à terça ou à sexta?', 'Are jackpots won more often on Tuesday or Friday?')}</div>
+      <p class="curiosity-text">${counts}</p>
+      <p class="curiosity-text">${L('O dia da semana <b>não influencia a probabilidade</b>: cada sorteio é independente. Nos 10 maiores jackpots de sempre, a divisão foi esta:', 'The day of the week <b>does not affect the odds</b>: every draw is independent. Among the 10 biggest jackpots ever, the split was:')}</p>
+      <div class="day-comparison">
+        <div class="day-card tue"><div class="day-label">${L('Terça-feira', 'Tuesday')}</div><div class="day-stat">${L(`${nT} dos 10 maiores`, `${nT} of the top 10`)}</div><div class="day-highlights">${list(2)}</div></div>
+        <div class="day-card fri"><div class="day-label">${L('Sexta-feira', 'Friday')}</div><div class="day-stat">${L(`${nF} dos 10 maiores`, `${nF} of the top 10`)}</div><div class="day-highlights">${list(5)}</div></div>
+      </div>
+      <p class="curiosity-note">${has
+        ? L(`Dados: ${num0.format(DATA.draws)} sorteios do formato atual, até ${dShort(DATA.lastDraw)}. Conclusão: é indiferente jogar à terça ou à sexta.`, `Data: ${num0.format(DATA.draws)} draws in the current format, up to ${dShort(DATA.lastDraw)}. Conclusion: it makes no difference whether you play on Tuesday or Friday.`)
+        : L('Conclusão: é indiferente jogar à terça ou à sexta.', 'Conclusion: it makes no difference whether you play on Tuesday or Friday.')}</p>`;
+  }
+
+  // Rollover: P(ninguém ganha) com N apostas, para vários níveis de jackpot
+  const roll = document.getElementById('rollBlock');
+  if (roll) {
+    const cur = ROLL_SCEN.find(sc => INFO.nextJackpot < sc.max);
+    const grid = ROLL_SCEN.map(sc => {
+      const pct = rolloverProb(sc.n), cls = pct >= 65 ? 'hi' : pct >= 40 ? 'mid' : 'lo';
+      return `<div class="rv-box"><div class="k">${L(sc.pt, sc.en)}</div><div class="v ${cls}">${pct.toFixed(0)}%</div><div class="sub">${L('prob. de rollover', 'chance of rollover')}<br>${L(`~${num0.format(sc.n / 1e6)} M apostas vendidas`, `~${num0.format(sc.n / 1e6)}M lines sold`)}</div></div>`;
+    }).join('');
+    roll.innerHTML = `
+      <div class="curiosity-title">&#9654; ${L('Qual a probabilidade de não sair a ninguém e o jackpot aumentar?', 'What are the chances nobody wins and the jackpot rolls over?')}</div>
+      <p class="curiosity-text">${L('A hipótese de <b>uma aposta</b> ganhar o jackpot é 1 em 139 838 160. Mas cada sorteio tem milhões de apostas, por isso a probabilidade de <em>nenhuma</em> ganhar depende de quantas se vendem em toda a Europa.', 'The chance of <b>one line</b> winning the jackpot is 1 in 139,838,160. But every draw has millions of lines, so the chance that <em>none</em> wins depends on how many are sold across Europe.')}</p>
+      <p class="curiosity-text">${L('A EuroMillions não divulga o número exato de apostas por sorteio. As estimativas públicas vão de <b>50 a 120 milhões</b> e sobem com o jackpot, porque jackpots maiores atraem mais jogadores. Com esses valores:', 'EuroMillions does not publish the exact number of lines per draw. Public estimates range from <b>50 to 120 million</b> and rise with the jackpot, because bigger jackpots attract more players. With those numbers:')}</p>
+      <div class="rollover-grid">${grid}</div>
+      <p class="curiosity-text" style="margin-top:14px;">${L('Ou seja, <b>na maioria dos sorteios com jackpot baixo, ninguém ganha</b>, e é por isso que o jackpot cresce durante semanas. Com jackpots muito altos, vendem-se tantas apostas que a probabilidade de rollover desce para 20 a 40%.', 'In other words, <b>in most draws with a low jackpot nobody wins</b>, which is why the jackpot grows for weeks. With very high jackpots so many lines are sold that the chance of a rollover drops to 20 to 40%.')}</p>
+      <p class="curiosity-text">${L(`O jackpot atual (${fmtM(INFO.nextJackpot)}, estimativa a ${INFO.updated}) tem uma probabilidade de rollover de cerca de <b>${rolloverProb(cur.n).toFixed(0)}%</b>.`, `The current jackpot (${fmtM(INFO.nextJackpot)}, estimate as of ${INFO.updatedEn}) has a rollover chance of about <b>${rolloverProb(cur.n).toFixed(0)}%</b>.`)}</p>
+      <p class="curiosity-note">${L('Cálculo: P(ninguém ganha) = (1 − 1/139 838 160)<sup>N</sup>, com N apostas. Exemplo: N = 70 M dá cerca de 60%; N = 120 M dá cerca de 42%. Os valores de N são estimativas.', 'Formula: P(nobody wins) = (1 − 1/139,838,160)<sup>N</sup>, with N lines. Example: N = 70M gives about 60%; N = 120M gives about 42%. The values of N are estimates.')}</p>`;
+  }
 }
 
 // ─── MÚLTIPLAS ───────────────────────────────────────────────────────────────
@@ -1880,6 +1856,7 @@ function updateMult() {
 
 // ─── ARRANQUE ────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async ()=>{
+  document.getElementById('splitPrize').value = INFO.nextJackpot;
   initHero();
   initCalc();
   switchTab('hot');
@@ -1887,7 +1864,6 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   updateMult();
   calcSplit();
   histInit();
-  renderRolloverGrid();
   renderRecords();
   applyLang();
   await loadData();

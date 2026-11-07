@@ -1,24 +1,24 @@
 # The Voluntary Tax: EuroMillions, with math
 
-A single-page web app for following the EuroMillions draws: a line generator, odds calculator, prize split with Portuguese stamp duty, and a game history for a group of friends. The name is a nod to the old joke that a lottery is a tax on people who are bad at math. The app agrees with the joke and shows the numbers.
+A single-page web app for following the EuroMillions draws: a line generator, odds calculator, prize split with Portuguese stamp duty, and a personal game history. The name is a nod to the old joke that a lottery is a tax on people who are bad at math. The app agrees with the joke and shows the numbers.
 
 It works in English and Portuguese (use the PT/EN button in the top corner). In English, prizes are shown in pounds by default.
 
-**[Open the app](https://pachecodecastro.github.io/euromilhoes/)**
+**[Open the app](https://pachecodecastro.github.io/euromilhoes/)** · Made by [Quinto Ponto Cardeal](https://quintopontocardeal.org/)
 
 ---
 
 ## What it does
 
-- **Live data.** On load it fetches the results CSV (1,000+ draws in the current 5/50 + 2/12 format) and recalculates everything.
+- **Live data.** On load it fetches the results CSV (1,000+ draws in the current 5/50 + 2/12 format) and recalculates everything. If the source is down, it reads the copy in `data/euromilhoes.csv`.
 - **Your time zone.** The countdown and the draw time use the visitor's time zone, and add the Lisbon time when it differs.
 - **Currency selector.** Prize amounts (the jackpot and the prize split) can be shown in euros, pounds, dollars, reais or, as a joke, bitcoin. Amounts you type stay in euros.
-- **Line generator** with three modes: hot numbers, coverage 5 (minimal overlap, greedy set cover) and coverage 10 (covers all 50 numbers exactly once).
+- **Line generator** with three modes: hot numbers, coverage 5 (minimal overlap, greedy set cover) and coverage 10 (aims to cover all 50 numbers once). Every click gets a fresh random seed from the browser (`crypto.getRandomValues`), so two people who click at the same time get different lines.
 - **Odds calculator** for budgets from €2.50 to €1,000,000.
 - **Multiple bets** using C(n,5) × C(s,2), with a reference table.
-- **Prize split** with stamp duty (20% on prizes above €5,000, applied to the whole prize).
-- **Game history** with percentage return and detection of repeated lines. It is stored only in your browser.
-- **Records.** The 10 biggest jackpots ever won, checked against euro-millions.com. The Portuguese version also has curiosities about Portugal: Tuesday vs. Friday, jackpots won in Portugal, winner profiles and rollover odds.
+- **Prize split** between any number of people, with stamp duty (20% on prizes above €5,000, applied to the whole prize).
+- **Game history** with percentage return and detection of repeated lines. It is stored only in your browser: nobody else sees it, and there is no login.
+- **Fun facts**, in both languages: the 10 biggest jackpots ever won (checked against euro-millions.com), Tuesday vs. Friday (counted from the CSV), jackpots won in Portugal, winner profiles and rollover odds for the current jackpot.
 
 ---
 
@@ -79,7 +79,7 @@ python3 -m unittest discover -s analysis -v
 ```
 index.html                  the whole app (single file, English and Portuguese)
 data/
-  euromilhoes.csv           local copy of the results (created and updated by the workflow)
+  euromilhoes.csv           local copy of the results (updated by the workflow, used as a fallback)
 analysis/
   euromilhoes_chi2.py       chi-square test (plain Python, no scipy)
   test_chi2.py              tests for the Python script
@@ -121,10 +121,10 @@ Results come from a public copy kept by daowa89 ([lottery-archive](https://githu
 - Tax follows what Santa Casa states: 20% stamp duty on prizes above €5,000. Always confirm the exact amount when you claim a prize. Rules differ outside Portugal.
 - Exchange rates come from the ECB reference rates (Frankfurter API) and the bitcoin price from Coinbase's public spot endpoint. If either request fails, the app uses fixed rates from 30 Oct 2026 and says so under the selector. The records table and the jackpot cap stay in euros, because they are historical facts in euros.
 - The draw is at about 21:05 CET in Paris, which is 20:05 in Lisbon. The countdown is a plain calculation from that, not a feed.
-- The jackpot and next draw date shown in the app are fixed values in the code (`INFO`), not an API. When the date no longer matches, the app warns that the estimate may be out of date. To update them, edit `nextJackpot` and `nextDrawISO` in `INFO` (current values were checked on the Santa Casa site on 30 Oct 2026).
-- The suggested lines use a simple pseudorandom function. They are meant to give varied bets, not to run a fair draw.
+- The jackpot and next draw date shown in the app are fixed values in the code (`INFO`), not an API. When the date no longer matches, the app warns that the estimate may be out of date. To update them, edit `nextJackpot` and `nextDrawISO` in `INFO` (current values were checked on euro-millions.com on 7 Nov 2026).
+- The suggested lines use mulberry32 seeded from `crypto.getRandomValues` on every click. They are meant to give varied bets, not to run a fair draw.
 - On load the app contacts four outside services: the results CSV (raw.githubusercontent.com), the two exchange-rate APIs above and Google Fonts. Without a connection it falls back to local data and system fonts, and everything else works the same.
-- The Portuguese curiosities section (jackpots won in Portugal, winner profiles) was written earlier and has not been rechecked against sources like the records table was.
+- The section on jackpots won in Portugal and the winner profiles were written earlier and have not been rechecked line by line against sources like the records table was. Unsourced estimates and names of private people were removed.
 - Nothing here is financial or legal advice.
 
 ---
@@ -137,7 +137,13 @@ Plain HTML + CSS + JavaScript. No React, no database, no API keys. It runs local
 
 ## Resumo em português
 
-Aplicação web de uma só página para acompanhar o EuroMilhões, com gerador de chaves, calculadora de probabilidades, apostas múltiplas, partilha de prémio com imposto do selo e histórico de jogos. Está em português e inglês, mostra a hora do sorteio no fuso de quem visita e deixa ver os prémios em euros, libras, dólares, reais ou bitcoin. O projeto inclui um teste qui-quadrado que mostra que os números mais sorteados no passado não dão qualquer vantagem (p = 0,357 para os números e 0,161 para as estrelas, já com a correção para sorteio sem repetição). Os dados atualizam-se sozinhos às terças e sextas através de uma GitHub Action. O jackpot e a data do próximo sorteio estão fixos no código e têm de ser atualizados à mão.
+Aplicação web de uma só página da Quinto Ponto Cardeal para acompanhar o EuroMilhões, com gerador de chaves, calculadora de probabilidades, apostas múltiplas, partilha de prémio com imposto do selo e histórico de jogos. Está em português e inglês, mostra a hora do sorteio no fuso de quem visita e deixa ver os prémios em euros, libras, dólares, reais ou bitcoin. O projeto inclui um teste qui-quadrado que mostra que os números mais sorteados no passado não dão qualquer vantagem (p = 0,357 para os números e 0,161 para as estrelas, já com a correção para sorteio sem repetição). Os dados atualizam-se sozinhos às terças e sextas através de uma GitHub Action. O jackpot e a data do próximo sorteio estão fixos no código e têm de ser atualizados à mão.
+
+---
+
+## Author
+
+Made by [Quinto Ponto Cardeal](https://quintopontocardeal.org/).
 
 ---
 
