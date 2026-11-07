@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imposto Voluntário · Euromilhões</title>
+<meta name="description" content="EuroMillions odds, line generator and prize split, with the math to back it up. English and Portuguese. / Probabilidades, gerador de chaves e partilha de prémio do EuroMilhões, com as contas.">
+<meta name="theme-color" content="#0b1020">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1020'/%3E%3Cpath d='M32 10l6.5 14.2 15.5 1.8-11.5 10.5 3.2 15.3L32 43.8 18.3 51.8l3.2-15.3L10 26l15.5-1.8z' fill='%23f5c451'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:      #080c1f;
+    --ink-2:    #0e1430;
+    --panel:    #131a3d;
+    --line:     rgba(150,170,255,0.12);
+    --line-2:   rgba(150,170,255,0.22);
+    --text:     #eef1ff;
+    --muted:    #8e96c4;
+    --muted-2:  #6b73a3;
+    --gold:     #f5c451;
+    --gold-2:   #ffdd87;
+    --gold-deep:#c8922b;
+    --peri:     #9db4ff;
+    --green:    #6ee7a8;
+    --teal:     #38bdf8;
+    --red:      #ff8a8a;
+    --ball:     44px;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--ink); color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh; overflow-x:hidden; line-height:1.5; -webkit-font-smoothing:antialiased; }
+
+  .bg { position:fixed; inset:0; z-index:0; pointer-events:none; }
+  .bg::before { content:''; position:absolute; inset:0; background: radial-gradient(1200px 700px at 50% -10%,rgba(70,90,200,.30),transparent 60%), radial-gradient(900px 600px at 85% 8%,rgba(245,196,81,.10),transparent 55%), radial-gradient(800px 800px at 10% 100%,rgba(80,60,180,.18),transparent 60%); }
+  .bg::after { content:''; position:absolute; inset:0; opacity:.5; background-image: radial-gradient(1.4px 1.4px at 20% 30%,rgba(255,255,255,.7),transparent), radial-gradient(1.2px 1.2px at 70% 20%,rgba(255,236,180,.8),transparent), radial-gradient(1px 1px at 40% 70%,rgba(255,255,255,.5),transparent), radial-gradient(1.3px 1.3px at 85% 60%,rgba(255,255,255,.6),transparent), radial-gradient(1px 1px at 15% 85%,rgba(255,236,180,.6),transparent); background-repeat:no-repeat; animation:twinkle 6s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100%{opacity:.35} 50%{opacity:.6} }
+
+  .wrap { position:relative; z-index:1; max-width:780px; margin:0 auto; padding:36px 20px 90px; }
+
+  /* ── top bar ── */
+  .top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:28px; flex-wrap:wrap; }
+  .brand { font-family:'Fraunces',serif; font-weight:600; font-size:19px; }
+  .brand b { color:var(--gold); font-weight:700; }
+  .top-right { display:flex; flex-direction:column; align-items:flex-end; gap:7px; }
+  .lucky-btn {
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'Inter',sans-serif; font-weight:700; font-size:13px; letter-spacing:.02em;
+    color:#2a1c02; background:linear-gradient(135deg,var(--gold-2),var(--gold) 60%,var(--gold-deep));
+    padding:9px 16px; border-radius:10px; text-decoration:none;
+    box-shadow:0 6px 20px -8px rgba(245,196,81,.6);
+    transition:transform .15s, box-shadow .2s, filter .15s;
+    white-space:nowrap;
+  }
+  .lucky-btn:hover { transform:translateY(-2px); box-shadow:0 10px 24px -8px rgba(245,196,81,.75); filter:saturate(1.1); }
+  .lucky-btn:active { transform:translateY(0) scale(.98); }
+  .lucky-star { font-size:11px; }
+  .status { display:inline-flex; align-items:center; gap:7px; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); }
+  .status .dot { width:7px; height:7px; border-radius:50%; background:var(--muted-2); transition:.3s; }
+  .status.live .dot { background:var(--green); box-shadow:0 0 9px rgba(110,231,168,.7); }
+  .status.off  .dot { background:var(--gold); }
+
+  /* ── hero ── */
+  .hero { position:relative; background:linear-gradient(165deg,var(--panel),var(--ink-2) 80%); border:1px solid var(--line); border-radius:22px; padding:32px 28px 28px; overflow:hidden; box-shadow:0 30px 60px -30px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04); }
+  .hero::before { content:''; position:absolute; inset:0; border-radius:22px; padding:1px; background:linear-gradient(160deg,rgba(245,196,81,.5),transparent 40%); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; }
+  .hero-star-bg { position:absolute; top:-30px; right:-20px; font-size:130px; color:rgba(245,196,81,.06); line-height:1; pointer-events:none; transform:rotate(-8deg); }
+  .hero-label { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .eyebrow { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
+  .eyebrow.dim { color:var(--muted); }
+  .hero-jackpot { font-family:'Fraunces',serif; font-weight:600; font-size:clamp(44px,12vw,82px); line-height:.95; letter-spacing:-.02em; background:linear-gradient(150deg,var(--gold-2),var(--gold) 55%,var(--gold-deep)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; font-variant-numeric:tabular-nums; }
+  .hero-cap { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:8px; }
+  .hero-cap a { color:var(--peri); text-decoration:none; border-bottom:1px dotted var(--peri); }
+
+  .countdown { display:flex; gap:8px; margin-top:20px; }
+  .cd-unit { flex:1; text-align:center; background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:12px; padding:10px 6px; }
+  .cd-num { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:clamp(18px,5.5vw,28px); color:var(--text); font-variant-numeric:tabular-nums; }
+  .cd-lab { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted-2); margin-top:4px; }
+
+  /* ── info cards ── */
+  .info { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:12px; }
+  .card { background:var(--ink-2); border:1px solid var(--line); border-radius:14px; padding:15px 14px; }
+  .card .k { font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted-2); margin-bottom:8px; }
+  .card .v { font-family:'Fraunces',serif; font-weight:600; font-size:17px; color:var(--text); line-height:1.15; }
+  .card .v small { font-family:'JetBrains Mono',monospace; font-weight:400; font-size:11px; color:var(--muted); display:block; margin-top:4px; }
+  .card .gold { color:var(--gold); }
+  .mini-balls { display:flex; gap:4px; flex-wrap:wrap; align-items:center; }
+  .mini { width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; background:#d8e2f8 !important; color:#1a2650 !important; flex-shrink:0; }
+  .mini.s { background:#f5c451 !important; color:#3a2606 !important; }
+
+  /* ── section header ── */
+  .sec-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:36px 0 14px; flex-wrap:wrap; }
+  .sec-head h2 { font-family:'Fraunces',serif; font-weight:600; font-size:22px; letter-spacing:-.01em; }
+  .sec-head .hint { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
+
+  /* ── tabs ── */
+  .tabs { display:flex; gap:0; margin-bottom:18px; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .tab { flex:1; padding:11px 10px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); cursor:pointer; background:transparent; border:none; transition:.15s; }
+  .tab.on { background:rgba(245,196,81,.14); color:var(--gold-2); }
+  .tab:hover:not(.on) { background:rgba(255,255,255,.04); color:var(--text); }
+
+  /* ── generate button ── */
+  .cta { width:100%; padding:16px; border:none; cursor:pointer; border-radius:14px; font-family:'Inter',sans-serif; font-weight:700; font-size:15px; letter-spacing:.02em; color:#2a1c02; background:linear-gradient(135deg,var(--gold-2),var(--gold) 60%,var(--gold-deep)); display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 14px 30px -12px rgba(245,196,81,.55); transition:transform .15s,box-shadow .2s,filter .2s; }
+  .cta:hover { transform:translateY(-2px); box-shadow:0 18px 38px -12px rgba(245,196,81,.7); filter:saturate(1.08); }
+  .cta:active { transform:translateY(0) scale(.99); }
+  .cta.loading { filter:saturate(.6) brightness(.9); pointer-events:none; }
+  .cta-note { font-family:'JetBrains Mono',monospace; font-size:10.5px; line-height:1.6; color:var(--muted); margin-top:11px; text-align:center; }
+  .cta-note b { color:var(--text); font-weight:500; }
+  .spin { display:inline-block; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ── combo cards ── */
+  .combos { display:flex; flex-direction:column; gap:11px; }
+  .combo { background:linear-gradient(165deg,var(--panel),var(--ink-2) 90%); border:1px solid var(--line); border-radius:16px; padding:18px 20px; opacity:0; transform:translateY(14px); animation:rise .42s forwards; }
+  @keyframes rise { to { opacity:1; transform:none; } }
+  .combo-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:13px; flex-wrap:wrap; gap:6px; }
+  .combo-id { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.16em; color:var(--muted); }
+  .combo-id b { color:var(--gold); font-weight:500; }
+  .combo-tag { font-family:'JetBrains Mono',monospace; font-size:10px; padding:3px 9px; border-radius:20px; background:rgba(157,180,255,.08); color:var(--peri); border:1px solid rgba(157,180,255,.18); }
+  .combo-tag.teal { background:rgba(56,189,248,.08); color:var(--teal); border-color:rgba(56,189,248,.22); }
+
+  .balls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+  /* Bolas: sem gradientes — cor sólida garantida em todos os browsers */
+  .ball {
+    width:var(--ball); height:var(--ball);
+    border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center;
+    flex-shrink:0; position:relative; overflow:hidden;
+    font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700;
+    /* cor do texto e fundo sólidos — nunca transparentes */
+    color:#1a2650 !important;
+    background:#d8e2f8 !important;
+    box-shadow:0 3px 8px rgba(0,0,0,.45), inset 0 1px 2px rgba(255,255,255,.8);
+    transition:transform .15s;
+    /* garante que o texto fica por cima de tudo */
+    line-height:1;
+  }
+  /* brilho via pseudoelemento — não interfere com o texto */
+  .ball::before {
+    content:''; position:absolute;
+    top:4px; left:6px; width:40%; height:35%;
+    background:rgba(255,255,255,0.55);
+    border-radius:50%;
+    pointer-events:none;
+  }
+  .ball span {
+    position:relative; z-index:2;
+    color:#1a2650; font-family:'JetBrains Mono',monospace;
+    font-size:14px; font-weight:700; line-height:1;
+    display:block;
+  }
+  .ball:hover { transform:translateY(-3px) scale(1.06); }
+  .ball.hot {
+    background:#ccd7f5 !important;
+    box-shadow:0 3px 8px rgba(0,0,0,.45), inset 0 1px 2px rgba(255,255,255,.8),
+               0 0 0 2.5px #f5c451, 0 0 12px rgba(245,196,81,.5);
+  }
+  .ball.star {
+    background:#f5c451 !important;
+    box-shadow:0 3px 8px rgba(120,80,0,.45), inset 0 1px 2px rgba(255,255,255,.7);
+  }
+  .ball.star span { color:#3a2606 !important; }
+  .ball.star::before { background:rgba(255,255,255,0.45); }
+
+  .sep { width:1px; height:28px; background:var(--line-2); margin:0 3px; flex-shrink:0; }
+  .star-mark { font-size:11px; color:var(--gold); flex-shrink:0; }
+  .combo-meta { margin-top:13px; padding-top:12px; border-top:1px solid var(--line); font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); line-height:1.6; }
+
+  /* ── coverage badge ── */
+  .cov-badge { display:inline-flex; align-items:center; gap:5px; font-family:'JetBrains Mono',monospace; font-size:10px; padding:3px 8px; border-radius:6px; background:rgba(56,189,248,.1); color:var(--teal); border:1px solid rgba(56,189,248,.22); }
+
+  /* ── coverage map ── */
+  .cov-section { background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:20px; margin-top:14px; }
+  .cov-title { font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2); margin-bottom:14px; }
+  .cov-grid { display:flex; flex-wrap:wrap; gap:5px; }
+  .cov-num { width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500; transition:.2s; }
+  .cov-num.covered { background:rgba(56,189,248,.18); color:var(--teal); border:1px solid rgba(56,189,248,.35); }
+  .cov-num.uncovered { background:rgba(255,255,255,.04); color:var(--muted-2); border:1px solid var(--line); }
+  .cov-stats { display:flex; gap:16px; margin-top:14px; flex-wrap:wrap; }
+  .cov-stat { font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .cov-stat .val { font-weight:700; }
+  .cov-stat .val.g { color:var(--teal); }
+  .cov-stat .val.y { color:var(--gold); }
+
+  /* ── hot numbers ── */
+  .hot { background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:18px 20px; }
+  .hot-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .hot-num { width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:#1a2650 !important; background:#d8e2f8 !important; }
+  .bar { flex:1; height:6px; background:rgba(150,170,255,.12); border-radius:4px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--gold-deep),var(--gold) 60%,var(--gold-2)); transition:width .7s cubic-bezier(.4,0,.2,1); }
+  .hot-count { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); min-width:40px; text-align:right; }
+
+  /* ── calculator ── */
+  .calc { background:linear-gradient(165deg,var(--panel),var(--ink-2) 90%); border:1px solid var(--line); border-radius:16px; padding:22px 20px; }
+  .presets { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:15px; }
+  .preset { font-family:'JetBrains Mono',monospace; font-size:11px; padding:7px 10px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid var(--line); color:var(--text); cursor:pointer; transition:.15s; white-space:nowrap; }
+  .preset:hover { border-color:var(--line-2); }
+  .preset.on { background:rgba(245,196,81,.14); border-color:rgba(245,196,81,.5); color:var(--gold-2); }
+  .calc-input { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .calc-input label { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); }
+  .field { display:flex; align-items:center; background:var(--ink); border:1px solid var(--line-2); border-radius:10px; padding:0 12px; }
+  .field span { font-family:'JetBrains Mono',monospace; color:var(--muted); }
+  .field input { width:90px; background:none; border:none; outline:none; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:15px; padding:10px 4px; }
+  .calc-out { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+  .out-box { background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:12px; padding:14px; }
+  .out-box .k { font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2); margin-bottom:7px; }
+  .out-box .v { font-family:'Fraunces',serif; font-weight:600; font-size:20px; }
+  .out-box .v.gold { color:var(--gold); }
+  .out-box .v.green { color:var(--green); }
+  .out-box .v small { font-family:'JetBrains Mono',monospace; font-weight:400; font-size:11px; color:var(--muted); display:block; margin-top:4px; letter-spacing:0; }
+  .calc-foot { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); margin-top:14px; line-height:1.7; }
+
+
+
+  /* ── Curiosidades estatísticas ── */
+  .stats-curiosity { display:flex; flex-direction:column; gap:0; }
+  .curiosity-block { background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:22px 20px; }
+  .curiosity-title { font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:700; color:var(--peri); margin-bottom:12px; letter-spacing:.03em; }
+  .curiosity-text { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); line-height:1.75; margin-bottom:10px; }
+  .curiosity-text b { color:var(--text); }
+  .curiosity-note { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted-2); margin-top:12px; line-height:1.6; }
+  .curiosity-note b { color:var(--muted); }
+  .day-comparison { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .day-card { border-radius:12px; padding:14px 16px; }
+  .day-card.tue { background:rgba(157,180,255,.08); border:1px solid rgba(157,180,255,.25); }
+  .day-card.fri { background:rgba(245,196,81,.06); border:1px solid rgba(245,196,81,.2); }
+  .day-label { font-family:'Fraunces',serif; font-weight:600; font-size:15px; margin-bottom:4px; }
+  .day-card.tue .day-label { color:var(--peri); }
+  .day-card.fri .day-label { color:var(--gold); }
+  .day-stat { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted-2); margin-bottom:10px; }
+  .day-highlights { display:flex; flex-direction:column; gap:5px; }
+  .day-hi { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); line-height:1.4; }
+  .jackpot-list-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--line); margin:12px 0; }
+  .jackpot-table { width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:11.5px; }
+  .jackpot-table th { background:rgba(255,255,255,.04); color:var(--muted-2); font-weight:500; padding:9px 12px; text-align:left; border-bottom:1px solid var(--line); font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+  .jackpot-table td { padding:9px 12px; border-bottom:1px solid rgba(150,170,255,.06); color:var(--text); }
+  .jackpot-table tbody tr:last-child td { border-bottom:none; }
+  .jackpot-table td:first-child { color:var(--muted-2); font-size:10px; }
+  .jackpot-table .jv { color:var(--gold-2); font-weight:700; font-family:'Fraunces',serif; font-size:14px; }
+  .tue-tag { color:var(--peri); font-weight:600; }
+  .fri-tag { color:var(--gold); font-weight:600; }
+  @media (max-width:560px) { .day-comparison { grid-template-columns:1fr; } }
+
+  /* ── Partilha entre amigos ── */
+  .split-section { background:linear-gradient(165deg,var(--panel),var(--ink-2) 90%); border:1px solid var(--line); border-radius:16px; padding:24px 22px; }
+  .split-prize-row { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .split-prize-row label { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); white-space:nowrap; }
+  .split-prize-input { display:flex; align-items:center; background:var(--ink); border:1px solid var(--line-2); border-radius:10px; padding:0 12px; }
+  .split-prize-input span { font-family:'JetBrains Mono',monospace; color:var(--muted); }
+  .split-prize-input input { width:130px; background:none; border:none; outline:none; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:15px; padding:10px 4px; }
+  .split-prize-btns { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:16px; }
+  .prize-btn { font-family:'JetBrains Mono',monospace; font-size:11px; padding:7px 11px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid var(--line); color:var(--muted); cursor:pointer; transition:.15s; white-space:nowrap; }
+  .prize-btn:hover { border-color:var(--line-2); color:var(--text); }
+  .prize-btn.on { background:rgba(245,196,81,.14); border-color:rgba(245,196,81,.4); color:var(--gold-2); }
+  .split-friends { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .friend-btn { font-family:'JetBrains Mono',monospace; font-size:12px; padding:9px 16px; border-radius:10px; background:rgba(255,255,255,.04); border:1px solid var(--line); color:var(--muted); cursor:pointer; transition:.15s; display:flex; align-items:center; gap:6px; }
+  .friend-btn:hover { border-color:var(--line-2); color:var(--text); }
+  .friend-btn.on { background:rgba(157,180,255,.12); border-color:rgba(157,180,255,.4); color:var(--peri); }
+  .friend-btn .fb-check { width:14px; height:14px; border-radius:3px; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; font-size:9px; flex-shrink:0; }
+  .friend-btn.on .fb-check { background:var(--peri); border-color:var(--peri); color:var(--ink); }
+  .split-stake-row { display:flex; align-items:center; gap:12px; margin-bottom:22px; flex-wrap:wrap; }
+  .split-stake-row label { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); white-space:nowrap; }
+  .split-results { display:flex; flex-direction:column; gap:10px; }
+  .split-person { background:rgba(157,180,255,.06); border:1px solid rgba(157,180,255,.18); border-radius:12px; padding:14px 18px; }
+  .split-row-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .split-name { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; letter-spacing:.06em; color:var(--peri); }
+  .split-gross { font-family:'Fraunces',serif; font-weight:600; font-size:22px; color:var(--text); }
+  .split-tax-row { display:flex; gap:16px; margin-top:8px; flex-wrap:wrap; }
+  .split-tax-item { font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .split-tax-item .tk { color:var(--muted-2); margin-right:4px; }
+  .split-tax-item .tv { color:var(--text); font-weight:600; }
+  .split-tax-item .tv.net { color:var(--green); }
+  .split-tax-item .tv.tax { color:var(--red); }
+  .split-note { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); margin-top:16px; line-height:1.7; }
+  .split-stake-badge { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:6px; padding:2px 8px; }
+  /* ── Histórico ── */
+  .hist-section { background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:22px 20px; }
+  .hist-add-form { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--line); }
+  .hist-field { display:flex; flex-direction:column; gap:5px; }
+  .hist-field label { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-2); }
+  .hist-field select, .hist-field input[type=number], .hist-field input[type=date] { font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--ink); border:1px solid var(--line-2); border-radius:8px; color:var(--text); padding:8px 10px; outline:none; min-width:0; }
+  .hist-field select option { background:var(--ink-2); }
+  .hist-add-btn { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; padding:9px 16px; border-radius:9px; border:none; cursor:pointer; background:var(--peri); color:var(--ink); transition:.15s; white-space:nowrap; align-self:flex-end; }
+  .hist-add-btn:hover { filter:brightness(1.1); }
+  .hist-table-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--line); }
+  .hist-table { width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:11.5px; }
+  .hist-table th { background:rgba(255,255,255,.04); color:var(--muted-2); font-weight:500; padding:10px 12px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+  .hist-table td { padding:10px 12px; border-bottom:1px solid rgba(150,170,255,.06); color:var(--text); vertical-align:middle; }
+  .hist-table tbody tr:last-child td { border-bottom:none; }
+  .hist-table tbody tr:hover { background:rgba(255,255,255,.02); }
+  .hist-ret.pos { color:var(--green); font-weight:700; }
+  .hist-ret.neg { color:var(--red); }
+  .hist-ret.zero { color:var(--muted); }
+  .hist-del { background:none; border:none; cursor:pointer; color:var(--muted-2); font-size:14px; padding:2px 6px; border-radius:4px; transition:.15s; }
+  .hist-del:hover { color:var(--red); background:rgba(255,138,138,.1); }
+  .hist-totals { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+  .hist-tot-box { background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .hist-tot-box .k { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2); margin-bottom:6px; }
+  .hist-tot-box .v { font-family:'Fraunces',serif; font-weight:600; font-size:18px; }
+  .hist-tot-box .v.g { color:var(--green); }
+  .hist-tot-box .v.r { color:var(--red); }
+  .hist-tot-box .v.y { color:var(--gold); }
+  .hist-empty { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); text-align:center; padding:24px; }
+  .hkey-input { font-family:'JetBrains Mono',monospace; font-size:12px; background:var(--ink); border:1px solid var(--line-2); border-radius:7px; color:var(--text); padding:6px 9px; outline:none; width:100%; }
+  .hkey-input:focus { border-color:var(--peri); }
+  .hist-keys-cell { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--peri); max-width:200px; }
+  .hist-key-tag { display:inline-block; background:rgba(157,180,255,.1); border:1px solid rgba(157,180,255,.22); border-radius:5px; padding:2px 7px; margin:2px 2px 2px 0; white-space:nowrap; }
+  .hist-key-tag.repeated { background:rgba(245,196,81,.12); border-color:rgba(245,196,81,.35); color:var(--gold-2); }
+  @media (max-width:560px) { .split-gross { font-size:18px; } .hist-totals { grid-template-columns:1fr 1fr; } }
+
+
+
+  /* ── Perfil dos vencedores ── */
+  .profile-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0; }
+  .profile-card { background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:12px; padding:16px 14px; display:flex; flex-direction:column; gap:10px; }
+  .profile-icon { font-size:22px; }
+  .profile-title { font-family:'Fraunces',serif; font-weight:600; font-size:15px; color:var(--text); }
+  .profile-body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); line-height:1.75; flex:1; }
+  .profile-body b { color:var(--text); }
+  .profile-verdict { font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600; padding:6px 10px; border-radius:7px; }
+  .profile-verdict.good { background:rgba(110,231,168,.1); color:var(--green); border:1px solid rgba(110,231,168,.25); }
+  .profile-verdict.neutral { background:rgba(157,180,255,.08); color:var(--peri); border:1px solid rgba(157,180,255,.2); }
+  .profile-summary { display:flex; flex-direction:column; gap:8px; margin-top:14px; padding:14px; background:rgba(255,255,255,.02); border-radius:10px; border:1px solid var(--line); }
+  .ps-item { display:flex; align-items:flex-start; gap:10px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); line-height:1.6; }
+  .ps-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+  .ps-text b { color:var(--text); }
+  @media (max-width:560px) { .profile-grid { grid-template-columns:1fr; } }
+
+  .muted-tag { color:var(--muted-2); font-weight:400; }
+  .pt-stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+  .pt-stat { background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:10px; padding:12px; text-align:center; }
+  .pt-val { font-family:'Fraunces',serif; font-weight:600; font-size:18px; color:var(--gold); display:block; }
+  .pt-k { font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--muted-2); letter-spacing:.06em; display:block; margin-top:5px; }
+  @media (max-width:560px) { .pt-stats-row { grid-template-columns:1fr 1fr; } }
+
+  .rollover-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0; }
+  .rv-box { background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:10px; padding:13px 12px; }
+  .rv-box .k { font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-2); margin-bottom:7px; }
+  .rv-box .v { font-family:'Fraunces',serif; font-weight:600; font-size:20px; }
+  .rv-box .v.hi { color:var(--green); }
+  .rv-box .v.mid { color:var(--gold); }
+  .rv-box .v.lo { color:var(--red); }
+  .rv-box .sub { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted-2); margin-top:5px; }
+  @media (max-width:560px) { .rollover-grid { grid-template-columns:1fr 1fr; } }
+
+  /* ── disclaimer ── */
+  .disclaimer { margin-top:32px; padding:16px 18px; border-radius:12px; background:rgba(255,138,138,.05); border:1px solid rgba(255,138,138,.16); font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.75; color:var(--muted); }
+  .disclaimer b { color:var(--red); font-weight:500; }
+  a.footlink { color:var(--peri); }
+
+  .empty { text-align:center; padding:40px 20px; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:13px; }
+  .empty .i { font-size:36px; display:block; margin-bottom:12px; color:var(--gold); }
+
+
+  /* ── Múltiplas ── */
+  .mult-explainer { background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:20px 22px; }
+  .mult-exp-title { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted-2); margin-bottom:12px; }
+  .mult-explainer p { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); line-height:1.75; margin-bottom:10px; }
+  .mult-explainer p:last-child { margin-bottom:0; }
+  .mult-explainer b { color:var(--text); font-weight:600; }
+  .mult-explainer em { color:var(--gold); font-style:normal; }
+  .mult-calc { background:linear-gradient(165deg,var(--panel),var(--ink-2) 90%); border:1px solid var(--line); border-radius:16px; padding:22px 20px; margin-top:14px; }
+  .mult-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:22px; }
+  .mult-label { font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-2); margin-bottom:10px; }
+  .mult-slider-row { display:flex; align-items:center; gap:12px; }
+  .mult-slider-row input[type=range] { flex:1; accent-color:var(--gold); cursor:pointer; }
+  .mult-val { font-family:'Fraunces',serif; font-weight:600; font-size:26px; color:var(--gold); min-width:28px; text-align:center; }
+  .mult-sub { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted-2); margin-top:6px; }
+  .mult-res-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .mult-res-box { background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:12px; padding:14px 12px; }
+  .mult-res-box .k { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2); margin-bottom:7px; }
+  .mult-res-box .v { font-family:'Fraunces',serif; font-weight:600; font-size:18px; color:var(--text); line-height:1.2; }
+  .mult-res-box .v.gold { color:var(--gold); }
+  .mult-res-box .v.green { color:var(--green); }
+  .mult-res-box .v small { font-family:'JetBrains Mono',monospace; font-weight:400; font-size:10px; color:var(--muted); display:block; margin-top:4px; }
+  .mult-formula { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:14px; padding:10px 14px; background:rgba(255,255,255,.03); border-radius:8px; border:1px solid var(--line); line-height:1.6; }
+  .mult-table-wrap { margin-top:14px; }
+  .mult-table-title { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2); margin-bottom:10px; }
+  .mult-table-scroll { overflow-x:auto; border-radius:12px; border:1px solid var(--line); }
+  .mult-table { width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .mult-table th { background:rgba(255,255,255,.04); color:var(--muted); font-weight:500; padding:9px 10px; text-align:center; border-bottom:1px solid var(--line); white-space:nowrap; }
+  .mult-table th:first-child { color:var(--gold); text-align:left; min-width:48px; }
+  .mult-table td { padding:7px 10px; text-align:center; border-bottom:1px solid rgba(150,170,255,.06); color:var(--muted); vertical-align:middle; white-space:nowrap; }
+  .mult-table td:first-child { color:var(--gold); font-weight:600; text-align:left; }
+  .mult-table td .ap { color:var(--text); font-weight:600; display:block; }
+  .mult-table td .cu { color:var(--muted); font-size:10px; }
+  .mult-table td.active { background:rgba(245,196,81,.15); }
+  .mult-table td.active .ap { color:var(--gold-2); }
+  .mult-table td.active .cu { color:var(--gold); }
+  .mult-table td.simples { background:rgba(56,189,248,.06); }
+  .mult-table td.simples .ap { color:var(--teal); }
+  .mult-table tbody tr:last-child td { border-bottom:none; }
+  .mult-table-note { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); margin-top:8px; line-height:1.6; }
+  .mult-table-note b { color:var(--text); }
+  @media (max-width:560px) { .mult-row { grid-template-columns:1fr; } .mult-res-grid { grid-template-columns:1fr 1fr; } }
+
+  @media (max-width:560px) { .info { grid-template-columns:1fr; } .calc-out { grid-template-columns:1fr; } :root { --ball:40px; } }
+  @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none !important; transition:none !important; scroll-behavior:auto; } .combo { opacity:1 !important; transform:none !important; } }
+  .lang-btn { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:.06em; padding:5px 10px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid var(--line); color:var(--muted); cursor:pointer; }
+  .lang-btn:hover { border-color:var(--line-2); color:var(--text); }
+  html[lang="en"] .pt-only { display:none; }
+  .cur-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:6px 0 14px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
+  .cur-row select { font-family:inherit; font-size:11px; color:var(--text); background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:8px; padding:5px 8px; }
+  .cur-note { flex-basis:100%; font-size:10px; color:var(--muted-2); line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">Imposto Voluntário <b>· Euromilhões</b></div>
+    <div class="top-right">
+      <button class="lang-btn" id="langBtn" onclick="toggleLang()" aria-label="Language / Idioma">EN</button>
+      <a class="lucky-btn" href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">
+        <span class="lucky-star">✦</span> Carrega aqui para seres milionário
+      </a>
+      <div class="status" id="status"><span class="dot"></span><span id="statusText">a carregar…</span></div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-star-bg">&#9733;</div>
+    <div class="hero-label">
+      <span class="eyebrow"><span>Próximo sorteio</span> · <span id="nextDrawLabel">—</span></span>
+      <span class="eyebrow dim">9 países · ter &amp; sex</span>
+    </div>
+    <div class="hero-jackpot" id="jackpot">—</div>
+    <div class="hero-cap" id="jackpotCap">jackpot estimado · confirmar em <a href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">Jogos Santa Casa</a></div>
+    <div class="cur-row">
+      <label for="curSel">Mostrar prémios em</label>
+      <select id="curSel" onchange="setCurrency(this.value)">
+        <option value="EUR">Euro (€)</option>
+        <option value="GBP">Libra (£)</option>
+        <option value="USD">Dólar ($)</option>
+        <option value="BRL">Real (R$)</option>
+        <option value="BTC">Bitcoin (₿, pela piada)</option>
+      </select>
+      <span class="cur-note" id="curNote"></span>
+    </div>
+    <div class="countdown">
+      <div class="cd-unit"><div class="cd-num" id="cdD">--</div><div class="cd-lab">dias</div></div>
+      <div class="cd-unit"><div class="cd-num" id="cdH">--</div><div class="cd-lab">horas</div></div>
+      <div class="cd-unit"><div class="cd-num" id="cdM">--</div><div class="cd-lab">min</div></div>
+      <div class="cd-unit"><div class="cd-num" id="cdS">--</div><div class="cd-lab">seg</div></div>
+    </div>
+  </section>
+
+  <!-- Info trio -->
+  <div class="info">
+    <div class="card">
+      <div class="k">Teto do jackpot</div>
+      <div class="v"><span class="gold">€250 M</span><small>atingido 3 vezes, todas em 2025</small></div>
+    </div>
+    <div class="card">
+      <div class="k">Último sorteio</div>
+      <div class="v"><div class="mini-balls" id="lastBalls"><span class="mini">--</span></div><small id="lastDrawInfo">—</small></div>
+    </div>
+    <div class="card">
+      <div class="k">Hipótese do jackpot</div>
+      <div class="v">1 em 139 M<small>por aposta · 5/50 + 2/12</small></div>
+    </div>
+  </div>
+
+  <!-- ── GERADOR ── -->
+  <div class="sec-head">
+    <h2>Gerador de chaves</h2>
+    <span class="hint" id="genHint">dados em direto</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab on" id="tabHot" onclick="switchTab('hot')">&#9733; Mais sorteados<br><small style="font-size:9px;opacity:.7">5 chaves · números quentes</small></button>
+    <button class="tab" id="tabCov5" onclick="switchTab('cov5')">&#9700; Cobertura 5<br><small style="font-size:9px;opacity:.7">5 chaves · sobreposição mínima</small></button>
+    <button class="tab" id="tabCov10" onclick="switchTab('cov10')">&#9700;&#9700; Cobertura 10<br><small style="font-size:9px;opacity:.7">10 chaves · cobre todos os nºs</small></button>
+  </div>
+
+  <div id="modeDesc" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.7;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;"></div>
+
+  <button class="cta" id="genBtn" onclick="generate()">
+    <span id="btnIcon">&#10022;</span><span id="btnText">Gerar chaves</span>
+  </button>
+  <p class="cta-note" id="ctaNote"></p>
+
+  <div id="comboList" style="margin-top:20px;">
+    <div class="combos" id="combosInner">
+      <div class="empty"><span class="i">&#10022;</span>A preparar com os dados mais recentes…</div>
+    </div>
+    <div id="covSection" style="display:none;"></div>
+  </div>
+
+  <!-- Hot numbers -->
+  <div class="sec-head"><h2>Mais sorteados</h2><span class="hint">× = nº de saídas</span></div>
+  <div class="hot" id="hotSection"><div class="empty" style="padding:16px">—</div></div>
+
+  <!-- Calculator -->
+  <div class="sec-head"><h2>Vale a pena apostar mais?</h2><span class="hint">€2,50 / aposta</span></div>
+  <div class="calc">
+    <div class="presets" id="presets">
+      <button class="preset" data-v="2.5">€2,50</button>
+      <button class="preset on" data-v="5">€5</button>
+      <button class="preset" data-v="7.5">€7,50</button>
+      <button class="preset" data-v="10">€10</button>
+      <button class="preset" data-v="20">€20</button>
+      <button class="preset" data-v="50">€50</button>
+      <button class="preset" data-v="75">€75</button>
+      <button class="preset" data-v="100">€100</button>
+      <button class="preset" data-v="250">€250</button>
+      <button class="preset" data-v="500">€500</button>
+      <button class="preset" data-v="1000">€1.000</button>
+      <button class="preset" data-v="2000">€2.000</button>
+      <button class="preset" data-v="5000">€5.000</button>
+      <button class="preset" data-v="10000">€10.000</button>
+      <button class="preset" data-v="20000">€20.000</button>
+      <button class="preset" data-v="50000">€50.000</button>
+      <button class="preset" data-v="75000">€75.000</button>
+      <button class="preset" data-v="100000">€100.000</button>
+      <button class="preset" data-v="250000">€250.000</button>
+      <button class="preset" data-v="500000">€500.000</button>
+      <button class="preset" data-v="1000000">€1.000.000</button>
+    </div>
+    <div class="calc-input">
+      <label for="budget">Orçamento</label>
+      <div class="field"><span>€</span><input id="budget" type="number" min="0" step="2.5" value="5" inputmode="decimal"></div>
+    </div>
+    <div class="calc-out">
+      <div class="out-box"><div class="k">Apostas que dá</div><div class="v" id="oLines">—</div></div>
+      <div class="out-box"><div class="k">Hipótese do jackpot</div><div class="v gold" id="oJackpot">—</div></div>
+      <div class="out-box"><div class="k">Hipótese de algum prémio</div><div class="v green" id="oAny">—<small>13 categorias, a partir de 2 nºs</small></div></div>
+      <div class="out-box"><div class="k">Em perspetiva</div><div class="v" id="oCtx" style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:400;line-height:1.5;">—</div></div>
+    </div>
+    <p class="calc-foot">Apostar mais multiplica as hipóteses exactamente na proporção do dinheiro gasto — não há atalhos. Exemplo: €1.000.000 (400.000 apostas) dá 1 em ~350 para o jackpot, mas o custo supera em muito qualquer prémio esperado.</p>
+  </div>
+
+
+  <!-- ── MÚLTIPLAS ── -->
+  <div class="sec-head">
+    <h2>Apostas Múltiplas</h2>
+    <span class="hint">jogar mais números num único bilhete</span>
+  </div>
+
+  <div class="mult-explainer">
+    <div class="mult-exp-title">Como funcionam?</div>
+    <p>Numa aposta <b>simples</b> escolhes exactamente 5 números + 2 estrelas &mdash; 1 combinação, €2,50.</p>
+    <p>Numa aposta <b>múltipla</b> escolhes <em>mais</em> números e/ou mais estrelas num único bilhete. O sistema joga automaticamente <em>todas</em> as combinações possíveis. Com 6 números + 2 estrelas estás a jogar as 6 formas de escolher 5 dos 6 &mdash; são 6 apostas num bilhete.</p>
+    <p>O custo sobe proporcionalmente ao número de combinações. A probabilidade de acertar o jackpot com pelo menos uma delas sobe na mesma proporção &mdash; <b>não há vantagem matemática sobre comprar apostas simples separadas</b>, mas é mais prático e garante cobertura sistemática dos números escolhidos.</p>
+  </div>
+
+  <div class="mult-calc">
+    <div class="mult-row">
+      <div class="mult-col">
+        <div class="mult-label">Números escolhidos</div>
+        <div class="mult-slider-row">
+          <input type="range" id="mNums" min="5" max="10" value="6" oninput="updateMult()">
+          <span class="mult-val" id="mNumsVal">6</span>
+        </div>
+        <div class="mult-sub">mínimo 5 (simples) &nbsp;·&nbsp; máximo 10</div>
+      </div>
+      <div class="mult-col">
+        <div class="mult-label">Estrelas escolhidas</div>
+        <div class="mult-slider-row">
+          <input type="range" id="mStars" min="2" max="10" value="3" oninput="updateMult()">
+          <span class="mult-val" id="mStarsVal">3</span>
+        </div>
+        <div class="mult-sub">mínimo 2 (simples) &nbsp;·&nbsp; máximo 10</div>
+      </div>
+    </div>
+    <div class="mult-res-grid">
+      <div class="mult-res-box">
+        <div class="k">Apostas incluídas</div>
+        <div class="v gold" id="mApostas">—</div>
+      </div>
+      <div class="mult-res-box">
+        <div class="k">Custo total</div>
+        <div class="v" id="mCusto">—</div>
+      </div>
+      <div class="mult-res-box">
+        <div class="k">Hipótese do jackpot</div>
+        <div class="v green" id="mJackpot">—</div>
+      </div>
+      <div class="mult-res-box">
+        <div class="k">Factor vs. 1 simples</div>
+        <div class="v" id="mVs">—</div>
+      </div>
+    </div>
+    <div class="mult-formula" id="mFormula">—</div>
+  </div>
+
+  <div class="mult-table-wrap">
+    <div class="mult-table-title">Tabela de referência &mdash; apostas e custo por combinação</div>
+    <div class="mult-table-scroll">
+      <table class="mult-table">
+        <thead>
+          <tr>
+            <th>Nºs \ ★</th>
+            <th>2★</th><th>3★</th><th>4★</th><th>5★</th><th>6★</th>
+            <th>7★</th><th>8★</th><th>9★</th><th>10★</th>
+          </tr>
+        </thead>
+        <tbody id="multTableBody"></tbody>
+      </table>
+    </div>
+    <p class="mult-table-note">Cada célula: <b>nº apostas</b> · custo €. Célula activa destacada a dourado.</p>
+  </div>
+
+
+  <!-- ── ESTATÍSTICAS: TERÇA vs SEXTA & GRANDES PRÉMIOS ── -->
+  <div class="sec-head">
+    <h2>Curiosidades estatísticas</h2>
+    <span class="hint">terça vs sexta · maiores jackpots</span>
+  </div>
+
+  <div class="stats-curiosity">
+
+    <!-- Terça vs Sexta -->
+    <div class="curiosity-block pt-only">
+      <div class="curiosity-title">&#9654; Os prémios saem mais à terça ou à sexta?</div>
+      <p class="curiosity-text">
+        Desde que o sorteio passou a ser bi-semanal (maio 2011), realizaram-se <b>praticamente o mesmo número</b> de sorteios em cada dia — é o que seria de esperar num sorteio justo. No formato actual (5/50 + 2/12, desde set 2016) foram <b>508 sorteios às terças</b> e <b>507 às sextas</b>, um empate virtual.
+      </p>
+      <p class="curiosity-text">
+        Analisando os maiores jackpots históricos documentados, a divisão por dia é também equilibrada — o que confirma que o dia da semana <b>não influencia a probabilidade</b>. Cada sorteio é independente. Dito isto, alguns dos maiores jackpots alguma vez pagos saíram efectivamente à terça:
+      </p>
+      <div class="day-comparison">
+        <div class="day-card tue">
+          <div class="day-label">Terça-feira</div>
+          <div class="day-stat">508 sorteios</div>
+          <div class="day-highlights">
+            <div class="day-hi">&#127941; €250M — 17 jun 2025 (Irlanda)</div>
+            <div class="day-hi">&#127941; €250M — 28 mar 2025 (Áustria)</div>
+            <div class="day-hi">&#127941; €175M — 19 fev 2019 (Irlanda)</div>
+            <div class="day-hi">&#127941; €174M — 9 jun 2026 (Bélgica)</div>
+          </div>
+        </div>
+        <div class="day-card fri">
+          <div class="day-label">Sexta-feira</div>
+          <div class="day-stat">507 sorteios</div>
+          <div class="day-highlights">
+            <div class="day-hi">&#127941; €250M — 19 ago 2025 (França)</div>
+            <div class="day-hi">&#127941; €240M — 15 dez 2023 (Áustria)</div>
+            <div class="day-hi">&#127941; €230M — 19 jul 2022 (Reino Unido)</div>
+            <div class="day-hi">&#127941; €220M — 26 out 2021 (França)</div>
+          </div>
+        </div>
+      </div>
+      <p class="curiosity-note">Dados: formato actual · 508 + 507 = 1015 sorteios até jun 2026. Conclusão: é indiferente jogar à terça ou à sexta.</p>
+    </div>
+
+    <!-- Maiores jackpots ≥50M -->
+    <div class="curiosity-block" style="margin-top:18px;">
+      <div class="curiosity-title">&#9654; Os maiores jackpots de sempre</div>
+      <p class="curiosity-text">O jackpot máximo (teto) é de <b>€250 milhões</b> e já foi atingido 3 vezes, todas em 2025. Os 10 maiores jackpots ganhos de sempre:</p>
+      <div class="jackpot-list-wrap">
+        <table class="jackpot-table">
+          <thead><tr><th>#</th><th>Valor</th><th>Data</th><th>Dia</th><th>País</th></tr></thead>
+          <tbody id="recBody"></tbody>
+        </table>
+      </div>
+      <p class="curiosity-note">Top 10: 6 saíram à <b>terça</b>, 4 à <b>sexta</b>, uma diferença dentro da variação estatística normal. Fonte: euro-millions.com, verificado a 30 out 2026.</p>
+    </div>
+
+    <!-- Jackpots ganhos em Portugal -->
+    <div class="curiosity-block pt-only" style="margin-top:18px;">
+      <div class="curiosity-title">&#9654; Jackpots do EuroMillhões ganhos em Portugal</div>
+      <p class="curiosity-text">
+        Portugal participa no EuroMillhões desde <b>2 de outubro de 2004</b> e é consistentemente um dos países com mais primeiros prémios atribuídos. Ao todo, já saíram <b>mais de 75 jackpots em Portugal</b> (1.º prémio), a uma média aproximada de <b>~4 por ano</b>. Dois saíram à terça, a maioria à sexta — mas a amostra é pequena para concluir diferenças reais.
+      </p>
+      <p class="curiosity-text">
+        Os maiores jackpots conhecidos ganhos em Portugal, com localidade, data e valor:
+      </p>
+      <div class="jackpot-list-wrap">
+        <table class="jackpot-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Valor ganho</th><th>Valor líquido (−20%)</th><th>Data</th><th>Dia</th><th>Localidade</th><th>Aposta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td class="jv">€213,9 M</td>
+              <td style="color:var(--green);font-weight:600;">~€171,1 M</td>
+              <td>25 jun 2024</td>
+              <td class="tue-tag">Terça</td>
+              <td>Ramalde, Porto</td>
+              <td style="color:var(--muted);">€2,50 (simples)</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="jv">€190 M</td>
+              <td style="color:var(--green);font-weight:600;">~€152 M</td>
+              <td>24 out 2014</td>
+              <td class="fri-tag">Sexta</td>
+              <td>Tabacaria Sobedis, C. Alegro, Castelo Branco</td>
+              <td style="color:var(--muted);">desconhecida</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td class="jv">€163,5 M</td>
+              <td style="color:var(--green);font-weight:600;">~€130,8 M</td>
+              <td>nov 2015</td>
+              <td class="fri-tag">Sexta</td>
+              <td>Eiras, Coimbra</td>
+              <td style="color:var(--muted);">desconhecida</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td class="jv">€100,8 M</td>
+              <td style="color:var(--green);font-weight:600;">~€80,6 M</td>
+              <td>jan 2020</td>
+              <td class="fri-tag">Sexta</td>
+              <td>Distrito de Lisboa</td>
+              <td style="color:var(--muted);">desconhecida</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td class="jv">€61,2 M</td>
+              <td style="color:var(--green);font-weight:600;">~€49 M</td>
+              <td>3 fev 2006</td>
+              <td class="fri-tag">Sexta</td>
+              <td>Odivelas, Lisboa <span style="color:var(--muted-2);font-size:10px;">(jackpot partilhado €183,6M com 2 franceses)</span></td>
+              <td style="color:var(--muted);">desconhecida</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td class="jv">~€67 M</td>
+              <td style="color:var(--green);font-weight:600;">~€53,6 M</td>
+              <td>2021</td>
+              <td class="tue-tag">Terça</td>
+              <td>Distrito do Porto</td>
+              <td style="color:var(--muted);">desconhecida</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td class="jv">~€66 M</td>
+              <td style="color:var(--green);font-weight:600;">~€52,8 M</td>
+              <td>2019</td>
+              <td class="fri-tag">Sexta</td>
+              <td>Faro</td>
+              <td style="color:var(--muted);">desconhecida</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td class="jv">~€40 M</td>
+              <td style="color:var(--green);font-weight:600;">~€32 M</td>
+              <td>~2010s</td>
+              <td class="muted-tag">—</td>
+              <td>Marco de Canaveses <span style="color:var(--muted-2);font-size:10px;">(Amélia de Jesus)</span></td>
+              <td style="color:var(--muted);">desconhecida</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pt-stats-row">
+        <div class="pt-stat"><span class="pt-val">75+</span><span class="pt-k">jackpots ganhos em PT</span></div>
+        <div class="pt-stat"><span class="pt-val">~4/ano</span><span class="pt-k">frequência média</span></div>
+        <div class="pt-stat"><span class="pt-val">€213,9 M</span><span class="pt-k">maior de sempre em PT (2024)</span></div>
+        <div class="pt-stat"><span class="pt-val">20%</span><span class="pt-k">imposto do selo sobre o prémio bruto</span></div>
+      </div>
+      <p class="curiosity-note">
+        Fontes: Santa Casa da Misericórdia de Lisboa, euro-millions.com, Wikipedia PT, Observador, Notícias ao Minuto · jun 2026. A lista de jackpots completa não é divulgada publicamente com todos os detalhes — os registos menores podem ter lacunas. O valor líquido é estimado após imposto do selo de 20%. "Muted-tag" = dia não confirmado nas fontes consultadas.
+      </p>
+    </div>
+
+    <!-- Probabilidade de rollover -->
+
+    <!-- Perfil dos vencedores -->
+    <div class="curiosity-block pt-only" style="margin-top:18px;">
+      <div class="curiosity-title">&#9654; Quem ganha? Apostas baixas ou altas, regulares ou ocasionais, sozinhos ou em grupo?</div>
+      <p class="curiosity-text">
+        A EuroMillions não obriga os vencedores a divulgar detalhes da sua aposta, por isso os dados são incompletos. Mas os casos documentados publicamente — e estudos sobre lotarias europeias — revelam padrões consistentes:
+      </p>
+
+      <div class="profile-grid">
+
+        <div class="profile-card">
+          <div class="profile-icon">💶</div>
+          <div class="profile-title">Valor apostado</div>
+          <div class="profile-body">
+            A <b>esmagadora maioria dos jackpots</b> foi ganha com apostas simples de <b>€2,50</b> (uma linha). O caso mais célebre em Portugal é o de Ramalde, Porto (2024): <b>€213,9M ganhos com uma aposta simples de €2,50</b>. O de Castelo Branco (2014, €190M) também foi aposta simples. Não há evidência de que apostas maiores aumentem a probabilidade relativa — apenas as probabilidades absolutas, proporcionalmente ao número de linhas compradas.
+          </div>
+          <div class="profile-verdict good">✓ Apostas baixas ganham tanto como apostas altas</div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-icon">📅</div>
+          <div class="profile-title">Jogadores regulares vs. ocasionais</div>
+          <div class="profile-body">
+            Há casos documentados nos dois extremos. O vencedor irlandês de €250M (jun 2025) comprou o bilhete <b>pela primeira vez</b> numa loja. A jovem Jane Park (Escócia, 2013) ganhou €1M <b>no primeiro bilhete da vida</b>. Noutro extremo, há vencedores que jogavam há décadas. Como o sorteio é aleatório e independente, <b>jogar regularmente não aumenta as hipóteses de um sorteio específico</b> — apenas garante estar "na corrida" mais vezes. Um jogador que compra 1 bilhete por semana durante 20 anos fez ~2080 tentativas com 1 em 139M cada.
+          </div>
+          <div class="profile-verdict neutral">→ Irrelevante: cada sorteio é independente</div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-icon">👥</div>
+          <div class="profile-title">Sozinhos ou em grupo (sindicato)?</div>
+          <div class="profile-body">
+            Estudos do National Lottery UK estimam que <b>~20–25% de todos os grandes prémios</b> (EuroMillions + Lotto) são ganhos por sindicatos. Em Portugal, os casos conhecidos são maioritariamente <b>apostadores individuais anónimos</b>. Os maiores sindicatos documentados na Europa incluem o de 8 irmãos irlandeses (€175M, 2019), 22 motoristas de autocarro de Dublin (€23,8M, 2016) e grupos de colegas de trabalho no Reino Unido. A vantagem do sindicato é real: mais linhas pelo mesmo custo — mas o prémio divide-se pelo número de membros.
+          </div>
+          <div class="profile-verdict neutral">→ ~75–80% ganhos individualmente, ~20–25% em grupo</div>
+        </div>
+
+      </div>
+
+      <div class="profile-summary">
+        <div class="ps-item"><span class="ps-icon">🏆</span><span class="ps-text">Maior prémio em PT com aposta simples (€2,50): <b>€213,9M</b> — Ramalde, Porto, 2024</span></div>
+        <div class="ps-item"><span class="ps-icon">🎲</span><span class="ps-text">Probabilidade = linhas compradas ÷ 139 838 160 — o valor apostado só conta porque compra mais linhas</span></div>
+        <div class="ps-item"><span class="ps-icon">👤</span><span class="ps-text">A maioria dos vencedores em Portugal são individuais e anónimos — não há padrão de "apostador típico"</span></div>
+        <div class="ps-item"><span class="ps-icon">📊</span><span class="ps-text">~1 em 5 grandes prémios na Europa é ganho por sindicatos (estimativa UK National Lottery)</span></div>
+      </div>
+
+      <p class="curiosity-note">Fontes: euro-millions.com, National Lottery UK, Santa Casa, casos documentados publicamente. A maioria dos vencedores opta pelo anonimato, pelo que os dados são parciais.</p>
+    </div>
+
+    <div class="curiosity-block pt-only" style="margin-top:18px;">
+      <div class="curiosity-title">&#9654; Qual a probabilidade de não sair a ninguém e o jackpot aumentar?</div>
+      <p class="curiosity-text">
+        A hipótese de <b>uma aposta específica</b> ganhar o jackpot é 1 em 139 838 160. Mas o sorteio tem milhões de apostas — a probabilidade de <em>nenhuma</em> ganhar depende de quantas apostas são vendidas em toda a Europa por sorteio.
+      </p>
+      <p class="curiosity-text">
+        A EuroMillions não divulga o número exacto de apostas por sorteio, mas fontes públicas estimam entre <b>50 a 120 milhões de apostas</b> por sorteio (varia muito com o valor do jackpot — jackpots maiores atraem mais jogadores). Com esses valores:
+      </p>
+      <div class="rollover-grid" id="rolloverGrid"></div>
+      <p class="curiosity-text" style="margin-top:14px;">
+        Ou seja: <b>na maioria dos sorteios com jackpot baixo, o jackpot não sai</b> — o que explica porque cresce durante semanas. Com jackpots muito altos (€150M+), a afluência de apostas aumenta tanto que a probabilidade de rollover desce para ~20–40%.
+      </p>
+      <p class="curiosity-text">
+        O jackpot actual (~€89M) tem uma probabilidade de rollover de cerca de <b id="currentRollover">…</b>. Para chegar ao máximo de €250M precisas de semanas consecutivas de rollover — cada uma com ~55–70% de probabilidade com apostas típicas.
+      </p>
+      <p class="curiosity-note">
+        Cálculo: P(nenhum ganha) = (1 − 1/139 838 160)<sup>N apostas</sup>. Exemplo: N=70M → ≈60%; N=120M → ≈42%. Os valores de N são estimativas — a EuroMillions não publica os totais exactos de apostas por sorteio.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ── PARTILHA ENTRE AMIGOS ── -->
+  <div class="sec-head">
+    <h2>E se saísse? Com quanto ficava cada um?</h2>
+    <span class="hint">partilha & impostos</span>
+  </div>
+
+  <div class="split-section">
+
+    <!-- Atalhos de prémio -->
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:8px;">Prémio</div>
+    <div class="split-prize-btns">
+      <button class="prize-btn on" data-prize="89000000" onclick="setPrize(this)">🏆 Jackpot estimado &nbsp;€89M</button>
+      <button class="prize-btn" data-prize="500000" onclick="setPrize(this)">🥈 2.º prémio (indicativo) &nbsp;€500k</button>
+      <button class="prize-btn" data-prize="0" onclick="setPrize(this)">✏️ Outro valor</button>
+    </div>
+    <div class="split-prize-row">
+      <label for="splitPrize">Valor do prémio (€)</label>
+      <div class="split-prize-input">
+        <span>€</span>
+        <input id="splitPrize" type="number" min="0" step="1" value="89000000" inputmode="decimal" oninput="onPrizeInput()">
+      </div>
+      <span id="prize2note" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);display:none;">O 2.º prémio (5 nºs + 1 ★) é variável — tipicamente €200k–€800k. Edita o valor real após o sorteio.</span>
+    </div>
+
+    <!-- Aposta -->
+    <div class="split-stake-row">
+      <label for="splitStake">A minha aposta</label>
+      <div class="split-prize-input">
+        <span>€</span>
+        <input id="splitStake" type="number" min="0" step="2.5" value="5" inputmode="decimal" oninput="calcSplit()">
+      </div>
+      <label for="splitTotal" style="margin-left:8px;">Total do grupo</label>
+      <div class="split-prize-input">
+        <span>€</span>
+        <input id="splitTotal" type="number" min="0" step="2.5" value="5" inputmode="decimal" oninput="calcSplit()">
+      </div>
+    </div>
+
+    <!-- Quem jogou -->
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:10px;">Quem apostou — selecciona para ver a parte de cada um</div>
+    <div class="split-friends" id="friendBtns">
+      <button class="friend-btn" data-name="P1" onclick="toggleFriend(this)"><span class="fb-check"></span><span>Jogador 1</span></button>
+      <button class="friend-btn" data-name="P2" onclick="toggleFriend(this)"><span class="fb-check"></span><span>Jogador 2</span></button>
+      <button class="friend-btn" data-name="P3" onclick="toggleFriend(this)"><span class="fb-check"></span><span>Jogador 3</span></button>
+      <button class="friend-btn" data-name="P4" onclick="toggleFriend(this)"><span class="fb-check"></span><span>Jogador 4</span></button>
+    </div>
+
+    <div class="split-results" id="splitResults"></div>
+
+    <p class="split-note">
+      A partilha é feita em partes iguais entre as pessoas selecionadas. Prémios acima de <b style="color:var(--red)">€5.000 pagam 20% de imposto do selo</b> em Portugal (descontado pela Santa Casa). Abaixo de €5.000 estão isentos. Confirma com um contabilista.
+    </p>
+  </div>
+
+  <!-- ── HISTÓRICO DE JOGOS ── -->
+  <div class="sec-head" style="margin-top:38px;">
+    <h2>Histórico de jogos</h2>
+    <span class="hint">registo do grupo</span>
+  </div>
+
+  <div class="hist-section">
+    <!-- Formulário de adição -->
+    <div class="hist-add-form">
+      <div class="hist-field">
+        <label>Data</label>
+        <input type="date" id="hDate">
+      </div>
+      <div class="hist-field">
+        <label>Quem apostou</label>
+        <select id="hWho" multiple size="4" style="height:auto;min-width:120px;">
+          <option value="P1">Jogador 1</option>
+          <option value="P2">Jogador 2</option>
+          <option value="P3">Jogador 3</option>
+          <option value="P4">Jogador 4</option>
+        </select>
+      </div>
+      <div class="hist-field">
+        <label>Total apostado (€)</label>
+        <input type="number" id="hStake" min="0" step="2.5" value="5" style="width:110px;">
+      </div>
+      <div class="hist-field">
+        <label>Valor ganho (€)</label>
+        <input type="number" id="hWon" min="0" step="0.01" value="0" style="width:110px;">
+      </div>
+      <div class="hist-field" style="flex:1;min-width:200px;">
+        <label>Chaves jogadas <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional · ex: 3 12 25 44 48 ★2 9)</span></label>
+        <div id="hKeysWrap" style="display:flex;flex-direction:column;gap:6px;">
+          <div class="hkey-row"><input type="text" class="hkey-input" placeholder="Chave 1: 5 números e 2 estrelas" maxlength="30"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <button type="button" onclick="hKeyAdd()" style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;">+ chave</button>
+          <button type="button" onclick="hKeyRemove()" style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;">− chave</button>
+        </div>
+      </div>
+      <button class="hist-add-btn" onclick="histAdd()">+ Adicionar</button>
+    </div>
+
+    <!-- Tabela -->
+    <div class="hist-table-wrap">
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Quem apostou</th>
+            <th>Chaves jogadas</th>
+            <th>Apostado</th>
+            <th>Ganho</th>
+            <th>Retorno</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="histBody"></tbody>
+      </table>
+    </div>
+    <div id="histEmpty" class="hist-empty">Ainda sem registos. Adiciona o primeiro jogo acima.</div>
+
+    <!-- Totais -->
+    <div class="hist-totals" id="histTotals" style="display:none;">
+      <div class="hist-tot-box"><div class="k">Total apostado</div><div class="v" id="htStake">—</div></div>
+      <div class="hist-tot-box"><div class="k">Total ganho</div><div class="v g" id="htWon">—</div></div>
+      <div class="hist-tot-box"><div class="k">Saldo</div><div class="v" id="htBalance">—</div></div>
+      <div class="hist-tot-box"><div class="k">Retorno médio</div><div class="v" id="htRet">—</div></div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <b>Aviso:</b> o EuroMillions é um sorteio genuinamente aleatório. Nenhuma estratégia — cobertura, frequências históricas ou qualquer outro método — aumenta a probabilidade de acertar o jackpot (1 em 139 838 160 por aposta). A cobertura máxima reduz repetições de números entre chaves, não a aleatoriedade do sorteio. O valor do jackpot é uma estimativa a 30 out 2026; confirma em <a class="footlink" href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">Jogos Santa Casa</a>. Joga com moderação. +18.
+  </div>
+</div>
+
+<script>
+// ─── IDIOMA / LANGUAGE ───────────────────────────────────────────────────────
+let LANG = 'pt';
+try {
+  const saved = localStorage.getItem('em_lang');
+  LANG = (saved === 'en' || saved === 'pt') ? saved : ((navigator.language || 'pt').toLowerCase().startsWith('pt') ? 'pt' : 'en');
+} catch (e) {
+  LANG = (navigator.language || 'pt').toLowerCase().startsWith('pt') ? 'pt' : 'en';
+}
+const L = (pt, en) => LANG === 'en' ? en : pt;
+const LOC = () => LANG === 'en' ? 'en-GB' : 'pt-PT';
+const keyPh = n => L(`Chave ${n}: 5 números e 2 estrelas`, `Line ${n}: 5 numbers and 2 stars`);
+
+// Textos fixos da página: o original em português fica em data-pt e a
+// versão inglesa vem deste dicionário (chave = HTML original normalizado).
+const EN_UNITS = {
+"Imposto Voluntário <b>· Euromilhões<\/b>": "The Voluntary Tax <b>· EuroMillions<\/b>",
+"<span class=\"lucky-star\">✦<\/span> Carrega aqui para seres milionário": "<span class=\"lucky-star\">✦<\/span> Click here to become a millionaire",
+"Próximo sorteio": "Next draw",
+"9 países · ter &amp; sex": "9 countries · Tue &amp; Fri",
+"dias": "days",
+"horas": "hours",
+"min": "min",
+"seg": "sec",
+"Teto do jackpot": "Jackpot cap",
+"<span class=\"gold\">€250 M<\/span><small>atingido 3 vezes, todas em 2025<\/small>": "<span class=\"gold\">€250M<\/span><small>reached 3 times, all in 2025<\/small>",
+"Último sorteio": "Latest draw",
+"Hipótese do jackpot": "Jackpot odds",
+"1 em 139 M<small>por aposta · 5/50 + 2/12<\/small>": "1 in 139M<small>per line · 5/50 + 2/12<\/small>",
+"Gerador de chaves": "Line generator",
+"★ Mais sorteados<br><small style=\"font-size:9px;opacity:.7\">5 chaves · números quentes<\/small>": "★ Most drawn<br><small style=\"font-size:9px;opacity:.7\">5 lines · hot numbers<\/small>",
+"◤ Cobertura 5<br><small style=\"font-size:9px;opacity:.7\">5 chaves · sobreposição mínima<\/small>": "◤ Coverage 5<br><small style=\"font-size:9px;opacity:.7\">5 lines · minimal overlap<\/small>",
+"◤◤ Cobertura 10<br><small style=\"font-size:9px;opacity:.7\">10 chaves · cobre todos os nºs<\/small>": "◤◤ Coverage 10<br><small style=\"font-size:9px;opacity:.7\">10 lines · covers every number<\/small>",
+"Mais sorteados": "Most drawn",
+"× = nº de saídas": "× = times drawn",
+"Vale a pena apostar mais?": "Is it worth betting more?",
+"€2,50 / aposta": "€2.50 / line",
+"Orçamento": "Budget",
+"Apostas que dá": "Lines you get",
+"Hipótese de algum prémio": "Odds of any prize",
+"Em perspetiva": "In perspective",
+"Apostar mais multiplica as hipóteses exactamente na proporção do dinheiro gasto — não há atalhos. Exemplo: €1.000.000 (400.000 apostas) dá 1 em ~350 para o jackpot, mas o custo supera em muito qualquer prémio esperado.": "Betting more multiplies your odds exactly in proportion to the money spent. There are no shortcuts. For example, €1,000,000 (400,000 lines) gives about 1 in 350 for the jackpot, but the cost far exceeds any expected prize.",
+"Apostas Múltiplas": "Multiple bets",
+"jogar mais números num único bilhete": "play more numbers on a single ticket",
+"Como funcionam?": "How do they work?",
+"Numa aposta <b>simples<\/b> escolhes exactamente 5 números + 2 estrelas — 1 combinação, €2,50.": "In a <b>single<\/b> bet you pick exactly 5 numbers + 2 stars: 1 combination, €2.50.",
+"Numa aposta <b>múltipla<\/b> escolhes <em>mais<\/em> números e/ou mais estrelas num único bilhete. O sistema joga automaticamente <em>todas<\/em> as combinações possíveis. Com 6 números + 2 estrelas estás a jogar as 6 formas de escolher 5 dos 6 — são 6 apostas num bilhete.": "In a <b>multiple<\/b> bet you pick <em>more<\/em> numbers and/or more stars on a single ticket. The system automatically plays <em>every<\/em> possible combination. With 6 numbers + 2 stars you are playing the 6 ways of choosing 5 out of 6: 6 lines on one ticket.",
+"O custo sobe proporcionalmente ao número de combinações. A probabilidade de acertar o jackpot com pelo menos uma delas sobe na mesma proporção — <b>não há vantagem matemática sobre comprar apostas simples separadas<\/b>, mas é mais prático e garante cobertura sistemática dos números escolhidos.": "The cost grows in proportion to the number of combinations. The chance of hitting the jackpot with at least one of them grows by the same proportion: <b>there is no mathematical advantage over buying separate single lines<\/b>, but it is more practical and gives systematic coverage of the numbers you chose.",
+"Números escolhidos": "Numbers chosen",
+"mínimo 5 (simples) &nbsp;·&nbsp; máximo 10": "minimum 5 (single) &nbsp;·&nbsp; maximum 10",
+"Estrelas escolhidas": "Stars chosen",
+"mínimo 2 (simples) &nbsp;·&nbsp; máximo 10": "minimum 2 (single) &nbsp;·&nbsp; maximum 10",
+"Apostas incluídas": "Lines included",
+"Custo total": "Total cost",
+"Factor vs. 1 simples": "Factor vs. 1 single",
+"Tabela de referência — apostas e custo por combinação": "Reference table: lines and cost per combination",
+"Cada célula: <b>nº apostas<\/b> · custo €. Célula activa destacada a dourado.": "Each cell: <b>no. of lines<\/b> · cost in €. Active cell highlighted in gold.",
+"Curiosidades estatísticas": "Records",
+"terça vs sexta · maiores jackpots": "the biggest jackpots ever",
+"▶ Os maiores jackpots de sempre": "▶ The biggest jackpots ever",
+"O jackpot máximo (teto) é de <b>€250 milhões<\/b> e já foi atingido 3 vezes, todas em 2025. Os 10 maiores jackpots ganhos de sempre:": "The maximum jackpot (cap) is <b>€250 million<\/b> and it has been hit 3 times, all in 2025. The 10 biggest jackpots ever won:",
+"Valor": "Amount",
+"Data": "Date",
+"Dia": "Day",
+"País": "Country",
+"Top 10: 6 saíram à <b>terça<\/b>, 4 à <b>sexta<\/b>, uma diferença dentro da variação estatística normal. Fonte: euro-millions.com, verificado a 30 out 2026.": "Top 10: 6 were won on a <b>Tuesday<\/b>, 4 on a <b>Friday<\/b>, a difference well within normal statistical variation. Source: euro-millions.com, checked on 30 Oct 2026.",
+"E se saísse? Com quanto ficava cada um?": "What if it hit? How much would each one get?",
+"partilha &amp; impostos": "split &amp; taxes",
+"Prémio": "Prize",
+"🏆 Jackpot estimado &nbsp;€89M": "🏆 Estimated jackpot &nbsp;€89M",
+"🥈 2.º prémio (indicativo) &nbsp;€500k": "🥈 2nd prize (indicative) &nbsp;€500k",
+"✏️ Outro valor": "✏️ Other amount",
+"O 2.º prémio (5 nºs + 1 ★) é variável — tipicamente €200k–€800k. Edita o valor real após o sorteio.": "The 2nd prize (5 numbers + 1 ★) varies, typically €200k–€800k. Enter the real amount after the draw.",
+"A minha aposta": "My stake",
+"Total do grupo": "Group total",
+"Quem apostou — selecciona para ver a parte de cada um": "Who played: select to see each person's share",
+"<span class=\"fb-check\"><\/span><span>Jogador 1<\/span>": "<span class=\"fb-check\"><\/span><span>Player 1<\/span>",
+"<span class=\"fb-check\"><\/span><span>Jogador 2<\/span>": "<span class=\"fb-check\"><\/span><span>Player 2<\/span>",
+"<span class=\"fb-check\"><\/span><span>Jogador 3<\/span>": "<span class=\"fb-check\"><\/span><span>Player 3<\/span>",
+"<span class=\"fb-check\"><\/span><span>Jogador 4<\/span>": "<span class=\"fb-check\"><\/span><span>Player 4<\/span>",
+"A partilha é feita em partes iguais entre as pessoas selecionadas. Prémios acima de <b style=\"color:var(--red)\">€5.000 pagam 20% de imposto do selo<\/b> em Portugal (descontado pela Santa Casa). Abaixo de €5.000 estão isentos. Confirma com um contabilista.": "The prize is split in equal shares among the people selected. Prizes above <b style=\"color:var(--red)\">€5,000 pay 20% stamp duty<\/b> in Portugal (withheld by Santa Casa). Below €5,000 they are tax-free. Rules differ by country, so check with an accountant.",
+"Histórico de jogos": "Bet history",
+"registo do grupo": "group record",
+"Quem apostou": "Who played",
+"Jogador 1": "Player 1",
+"Jogador 2": "Player 2",
+"Jogador 3": "Player 3",
+"Jogador 4": "Player 4",
+"Total apostado (€)": "Total staked (€)",
+"Valor ganho (€)": "Amount won (€)",
+"Chaves jogadas <span style=\"font-weight:400;text-transform:none;letter-spacing:0;\">(opcional · ex: 3 12 25 44 48 ★2 9)<\/span>": "Lines played <span style=\"font-weight:400;text-transform:none;letter-spacing:0;\">(optional · e.g. 3 12 25 44 48 ★2 9)<\/span>",
+"+ chave": "+ line",
+"− chave": "− line",
+"+ Adicionar": "+ Add",
+"Chaves jogadas": "Lines played",
+"Apostado": "Staked",
+"Ganho": "Won",
+"Retorno": "Return",
+"Ainda sem registos. Adiciona o primeiro jogo acima.": "No records yet. Add your first game above.",
+"Total apostado": "Total staked",
+"Total ganho": "Total won",
+"Saldo": "Balance",
+"Retorno médio": "Average return",
+"<b>Aviso:<\/b> o EuroMillions é um sorteio genuinamente aleatório. Nenhuma estratégia — cobertura, frequências históricas ou qualquer outro método — aumenta a probabilidade de acertar o jackpot (1 em 139 838 160 por aposta). A cobertura máxima reduz repetições de números entre chaves, não a aleatoriedade do sorteio. O valor do jackpot é uma estimativa a 30 out 2026; confirma em <a class=\"footlink\" href=\"https://www.jogossantacasa.pt/web/JogarEuromilhoes/\" target=\"_blank\" rel=\"noopener\">Jogos Santa Casa<\/a>. Joga com moderação. +18.": "<b>Notice:<\/b> EuroMillions is a genuinely random draw. No strategy (coverage, historical frequencies or any other method) raises the probability of hitting the jackpot (1 in 139,838,160 per line). Maximum coverage reduces repeated numbers between lines, not the randomness of the draw. The jackpot figure is an estimate as of 30 Oct 2026; check <a class=\"footlink\" href=\"https://www.jogossantacasa.pt/web/JogarEuromilhoes/\" target=\"_blank\" rel=\"noopener\">Jogos Santa Casa<\/a>. Play responsibly. 18+.",
+"Mostrar prémios em": "Show prizes in",
+"Libra (£)": "Pound (£)",
+"Dólar ($)": "Dollar ($)",
+"Bitcoin (₿, pela piada)": "Bitcoin (₿, just for fun)",
+"Valor do prémio (€)": "Prize amount (€)"
+};
+const normH = s => s.replace(/\s+/g, ' ').trim();
+const INL = new Set(['B','EM','I','STRONG','SMALL','A','BR','SPAN','MARK','SUP','SUB','CODE']);
+const DYN_IDS = new Set(['curNote','statusText','nextDrawLabel','jackpotCap','lastDrawInfo','genHint','modeDesc','btnText','ctaNote','oLines','oJackpot','oAny','oCtx','mApostas','mCusto','mJackpot','mVs','mFormula','noteDraws','htStake','htWon','htBalance','htRet','currentRollover']);
+const SKIP_SEL = '#comboList,#hotSection,#splitResults,#histBody,#rolloverGrid,#multTableBody,#covSection,#recBody,.pt-only,#langBtn';
+function collectUnits() {
+  const out = [];
+  (function walk(el) {
+    if (['SCRIPT','STYLE','INPUT','TEXTAREA'].includes(el.tagName) || DYN_IDS.has(el.id) || el.matches(SKIP_SEL)) return;
+    const kids = [...el.children];
+    const text = normH(el.textContent);
+    if (text && /[A-Za-zÀ-ÿ]{2}/.test(text) && kids.every(k => INL.has(k.tagName)) && !el.querySelector('[id]')) { out.push(el); return; }
+    kids.forEach(walk);
+  })(document.body);
+  return out;
+}
+function translateStatic() {
+  collectUnits().forEach(el => {
+    if (el.dataset.pt === undefined) el.dataset.pt = el.innerHTML;
+    const en = EN_UNITS[normH(el.dataset.pt)];
+    el.innerHTML = (LANG === 'en' && en !== undefined) ? en : el.dataset.pt;
+  });
+  document.querySelectorAll('.preset').forEach(b => {
+    if (b.dataset.pt === undefined) b.dataset.pt = b.textContent;
+    const v = parseFloat(b.dataset.v);
+    b.textContent = LANG === 'en' ? '€' + v.toLocaleString('en-GB', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }) : b.dataset.pt;
+  });
+}
+function toggleLang() {
+  LANG = LANG === 'en' ? 'pt' : 'en';
+  if (!curChosen) CURRENCY = LANG === 'en' ? 'GBP' : 'EUR';
+  try { localStorage.setItem('em_lang', LANG); } catch (e) {}
+  applyLang();
+}
+function applyLang() {
+  document.documentElement.lang = LANG;
+  document.title = L('Imposto Voluntário · Euromilhões', 'The Voluntary Tax · EuroMillions');
+  translateStatic();
+  const b = document.getElementById('langBtn'); if (b) b.textContent = L('EN', 'PT');
+  reflectStatus(); heroTexts(); renderLastDraw(); refreshModeTexts();
+  if (lastRender) { renderCombos(lastRender.combos, lastRender.mode); if (lastRender.mode !== 'hot') renderCoverageMap(lastRender.combos); }
+  if (DATA.numbers.length) renderHot();
+  setGenHint(); calcOdds(); buildMultTable(); updateMult(); calcSplit(); histRender(); renderRecords(); renderCurNote();
+  document.querySelectorAll('.hkey-input').forEach((i, idx) => { i.placeholder = keyPh(idx + 1); });
+  document.querySelectorAll('.friend-btn').forEach(b => { const c = b.querySelector('.fb-check'); if (c) c.textContent = b.classList.contains('on') ? '✓' : ''; });
+}
+
+// ─── RECORDES / RECORDS (fonte: euro-millions.com/winners, 30 out 2026) ─────
+const RECORDS = [
+  [250,   '2025-08-19', ['França','France']],
+  [250,   '2025-06-17', ['Irlanda','Ireland']],
+  [250,   '2025-03-28', ['Áustria','Austria']],
+  [240,   '2023-12-08', ['Áustria','Austria']],
+  [230,   '2022-07-19', ['Reino Unido','United Kingdom']],
+  [220,   '2021-10-15', ['França','France']],
+  [215,   '2022-05-10', ['Reino Unido','United Kingdom']],
+  [213.9, '2024-06-25', ['Portugal','Portugal']],
+  [212,   '2024-11-26', ['Reino Unido','United Kingdom']],
+  [210,   '2021-02-26', ['Suíça','Switzerland']],
+];
+function renderRecords() {
+  const body = document.getElementById('recBody'); if (!body) return;
+  body.innerHTML = RECORDS.map(([amt, iso, ctry], i) => {
+    const d = new Date(iso + 'T12:00:00Z');
+    let wd = d.toLocaleDateString(LOC(), { timeZone: 'UTC', weekday: 'long' }).split('-')[0];
+    wd = wd.charAt(0).toUpperCase() + wd.slice(1);
+    const cls = d.getUTCDay() === 5 ? 'fri-tag' : 'tue-tag';
+    const val = LANG === 'en' ? '€' + amt + 'M' : '€' + String(amt).replace('.', ',') + ' M';
+    const date = d.toLocaleDateString(LOC(), { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' });
+    return `<tr><td>${i + 1}</td><td class="jv">${val}</td><td>${date}</td><td class="${cls}">${wd}</td><td>${L(ctry[0], ctry[1])}</td></tr>`;
+  }).join('');
+}
+
+// ─── JOGO ────────────────────────────────────────────────────────────────────
+const INFO = { updated:'30 out 2026', nextDrawISO:'2026-10-30', nextJackpot:89000000, pricePerLine:2.5, jackpotOdds:139838160, anyPrizeOdds:13, drawHour:20, drawMinute:5 };
+
+// ─── DADOS ───────────────────────────────────────────────────────────────────
+const RESULTS_URL = 'https://raw.githubusercontent.com/daowa89/lottery-archive/main/eu/euromillions/results.csv';
+const CURRENT_FORMAT_FROM = '2016-09-27';
+const NUMBER_SNAPSHOT = [[1,88,62],[2,100,6],[3,97,31],[4,92,3],[5,99,10],[6,96,10],[7,101,3],[8,99,41],[9,98,13],[10,109,31],[11,92,69],[12,100,27],[13,105,55],[14,100,3],[15,101,101],[16,100,10],[17,116,10],[18,88,13],[19,107,38],[20,111,27],[21,112,143],[22,71,3],[23,113,3],[24,101,104],[25,101,20],[26,99,24],[27,109,73],[28,94,59],[29,115,48],[30,91,52],[31,97,17],[32,96,34],[33,91,76],[34,106,38],[35,111,17],[36,91,34],[37,98,20],[38,92,27],[39,101,108],[40,84,52],[41,103,31],[42,121,13],[43,86,31],[44,112,6],[45,105,27],[46,103,6],[47,102,45],[48,109,80],[49,93,10],[50,94,97]];
+const STAR_SNAPSHOT = [[1,147,39],[2,193,4],[3,192,49],[4,148,49],[5,156,18],[6,180,14],[7,161,7],[8,169,18],[9,168,7],[10,155,67],[11,158,32],[12,173,4]];
+const LAST_DRAW_SNAPSHOT = { date:'2026-06-16', nums:[18,25,31,37,45], stars:[4,9] };
+let DATA = { numbers:[], stars:[], draws:0, lastDraw:null, lastNums:[], lastStars:[], live:false };
+
+function snapStats(snap,draws){ return snap.map(([number,freq,days])=>({ number,freq,frequency:freq/draws,days })); }
+function useSnapshot(){ DATA={ numbers:snapStats(NUMBER_SNAPSHOT,1000), stars:snapStats(STAR_SNAPSHOT,1000), draws:1000, lastDraw:new Date(LAST_DRAW_SNAPSHOT.date), lastNums:LAST_DRAW_SNAPSHOT.nums, lastStars:LAST_DRAW_SNAPSHOT.stars, live:false }; }
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/), rows=[];
+  for(let i=1;i<lines.length;i++){
+    const p=lines[i].split(','); if(p.length<8||p[0]<CURRENT_FORMAT_FROM) continue;
+    const nums=[p[1],p[2],p[3],p[4],p[5]].map(Number), stars=[p[6],p[7]].map(Number);
+    if(nums.some(isNaN)||stars.some(isNaN)) continue;
+    rows.push({date:p[0],nums,stars});
+  }
+  return rows;
+}
+function buildStats(rows){
+  const nC={},nL={},sC={},sL={};
+  for(let n=1;n<=50;n++){nC[n]=0;nL[n]=null;} for(let s=1;s<=12;s++){sC[s]=0;sL[s]=null;}
+  let last='0000-00-00',lastRow=rows[rows.length-1];
+  rows.forEach(r=>{ if(r.date>last){last=r.date;lastRow=r;} r.nums.forEach(n=>{nC[n]++;if(!nL[n]||r.date>nL[n])nL[n]=r.date;}); r.stars.forEach(s=>{sC[s]++;if(!sL[s]||r.date>sL[s])sL[s]=r.date;}); });
+  const draws=rows.length, lastDate=new Date(last), days=d=>d?Math.round((lastDate-new Date(d))/86400000):9999;
+  const numbers=[],stars=[];
+  for(let n=1;n<=50;n++) numbers.push({number:n,freq:nC[n],frequency:nC[n]/draws,days:days(nL[n])});
+  for(let s=1;s<=12;s++) stars.push({number:s,freq:sC[s],frequency:sC[s]/draws,days:days(sL[s])});
+  return {numbers,stars,draws,lastDraw:lastDate,lastNums:lastRow.nums,lastStars:lastRow.stars};
+}
+async function loadData(){
+  try{ const res=await fetch(RESULTS_URL,{cache:'no-store'}); if(!res.ok) throw 0; const rows=parseCSV(await res.text()); if(rows.length<100) throw 0; DATA={...buildStats(rows),live:true}; }
+  catch{ useSnapshot(); }
+  reflectStatus(); renderLastDraw(); refreshModeTexts();
+}
+
+// ─── FORMATAÇÃO ──────────────────────────────────────────────────────────────
+const fmtCache={};
+const nf=o=>{const k=LANG+JSON.stringify(o);return fmtCache[k]||(fmtCache[k]=new Intl.NumberFormat(LOC(),o));};
+const eur0={format:v=>nf({style:'currency',currency:'EUR',maximumFractionDigits:0}).format(v)};
+const num0={format:v=>nf({}).format(v)};
+
+// ─── MOEDA / CURRENCY ────────────────────────────────────────────────────────
+// Prémios e resultados mostram-se na moeda escolhida; o que escreves fica em euros.
+const CUR_SYM = { EUR:'€', GBP:'£', USD:'$', BRL:'R$', BTC:'₿' };
+const RATES = { EUR:1, GBP:0.8338, USD:1.1172, BRL:6.0692, BTC:1/68466.435 };  // valores de reserva, 30 out 2026
+const ratesInfo = { date:'2026-10-30', fx:false, btc:false };
+let CURRENCY = 'EUR', curChosen = false;
+try { const c = localStorage.getItem('em_cur'); if (CUR_SYM[c]) { CURRENCY = c; curChosen = true; } } catch (e) {}
+if (!curChosen) CURRENCY = LANG === 'en' ? 'GBP' : 'EUR';
+function money(eur) {
+  const v = eur * RATES[CURRENCY];
+  if (CURRENCY === 'BTC') return '₿' + nf({ useGrouping:'always', maximumFractionDigits: v < 0.01 ? 6 : v < 10 ? 4 : 2 }).format(v);
+  return nf({ style:'currency', currency:CURRENCY, useGrouping:'always', maximumFractionDigits:0 }).format(Math.round(v));
+}
+function setCurrency(c) {
+  if (!CUR_SYM[c]) return;
+  CURRENCY = c; curChosen = true;
+  try { localStorage.setItem('em_cur', c); } catch (e) {}
+  refreshMoney();
+}
+function renderCurNote() {
+  const el = document.getElementById('curNote'); if (!el) return;
+  const sel = document.getElementById('curSel'); if (sel) sel.value = CURRENCY;
+  const typed = L('o que escreves está em euros', 'amounts you type are in euros');
+  if (CURRENCY === 'EUR') { el.textContent = typed; return; }
+  const r = RATES[CURRENCY];
+  const rate = CURRENCY === 'BTC' ? `1 BTC = ${nf({ maximumFractionDigits:0 }).format(1 / r)} €` : `1 € = ${nf({ maximumFractionDigits:4 }).format(r)} ${CUR_SYM[CURRENCY]}`;
+  const live = CURRENCY === 'BTC' ? ratesInfo.btc : ratesInfo.fx;
+  const src = live ? (CURRENCY === 'BTC' ? L('em direto', 'live') : L('BCE ', 'ECB ') + ratesInfo.date) : L('valores de 30 out 2026', 'values from 30 Oct 2026');
+  el.textContent = `${rate} · ${src} · ${typed}`;
+}
+function refreshMoney() { heroTexts(); renderCurNote(); calcSplit(); }
+async function loadRates() {
+  try {
+    const r = await fetch('https://api.frankfurter.dev/v1/latest?base=EUR&symbols=GBP,USD,BRL');
+    if (r.ok) { const j = await r.json(); ['GBP','USD','BRL'].forEach(c => { if (j.rates && j.rates[c] > 0) RATES[c] = j.rates[c]; }); if (j.date) ratesInfo.date = j.date; ratesInfo.fx = true; }
+  } catch (e) {}
+  try {
+    const r = await fetch('https://api.coinbase.com/v2/prices/BTC-EUR/spot');
+    if (r.ok) { const p = parseFloat((await r.json()).data.amount); if (p > 0) { RATES.BTC = 1 / p; ratesInfo.btc = true; } }
+  } catch (e) {}
+  refreshMoney();
+}
+const dShort=d=>d.toLocaleDateString(LOC(),{timeZone:'UTC',day:'2-digit',month:'short',year:'numeric'});
+const dDraw=d=>d.toLocaleDateString(LOC(),{timeZone:'Europe/Lisbon',weekday:'long',day:'2-digit',month:'long'});
+
+function reflectStatus(){
+  const w=document.getElementById('status'),t=document.getElementById('statusText');
+  if(!DATA.lastDraw){w.className='status';t.textContent=L('a carregar…','loading…');return;}
+  if(DATA.live){w.className='status live';t.textContent=L(`em direto · ${DATA.draws} sorteios · último ${dShort(DATA.lastDraw)}`,`live · ${DATA.draws} draws · latest ${dShort(DATA.lastDraw)}`);}
+  else{w.className='status off';t.textContent=L(`offline · dados locais de ${dShort(DATA.lastDraw)}`,`offline · local data from ${dShort(DATA.lastDraw)}`);}
+}
+
+// ─── HERO ────────────────────────────────────────────────────────────────────
+// Próximo sorteio: terças e sextas às 20:00 de Lisboa, seja qual for o fuso do visitante
+const LISBON = 'Europe/Lisbon';
+const lisbonISO = ms => new Intl.DateTimeFormat('en-CA', { timeZone: LISBON, year: 'numeric', month: '2-digit', day: '2-digit' }).format(ms);
+function lisbonOffsetMin(ms) {
+  const f = new Intl.DateTimeFormat('en-GB', { timeZone: LISBON, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(ms);
+  const g = t => +f.find(x => x.type === t).value;
+  return (Date.UTC(g('year'), g('month') - 1, g('day'), g('hour'), g('minute')) - Math.floor(ms / 60000) * 60000) / 60000;
+}
+function nextDrawDateTime() {
+  const now = Date.now();
+  const [y, m, d] = lisbonISO(now).split('-').map(Number);
+  for (let k = 0; k < 10; k++) {
+    const base = Date.UTC(y, m - 1, d + k), wd = new Date(base).getUTCDay();
+    if (wd !== 2 && wd !== 5) continue;
+    const guess = base + (INFO.drawHour * 60 + INFO.drawMinute) * 60000;
+    const t = guess - lisbonOffsetMin(guess) * 60000;
+    if (t > now) return new Date(t);
+  }
+  return new Date(now + 86400000);
+}
+const NEXT_DRAW = nextDrawDateTime();
+const SC_LINK = '<a href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">Jogos Santa Casa</a>';
+// Data e hora do sorteio no fuso de quem visita; se for diferente, junta a hora de Lisboa
+function drawLabel() {
+  const local = NEXT_DRAW.toLocaleString(LOC(), { weekday:'long', day:'2-digit', month:'long', hour:'2-digit', minute:'2-digit' });
+  const tf = { hour:'2-digit', minute:'2-digit' };
+  const lis = NEXT_DRAW.toLocaleTimeString(LOC(), { ...tf, timeZone:LISBON });
+  const loc = NEXT_DRAW.toLocaleTimeString(LOC(), tf);
+  if (lis === loc) return local;
+  let city = ''; try { city = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop().replace(/_/g, ' '); } catch (e) {}
+  return `${local}${city ? ' (' + city + ')' : ''} · ${lis} ${L('em Lisboa','Lisbon')}`;
+}
+function heroTexts() {
+  document.getElementById('nextDrawLabel').textContent = drawLabel();
+  const stale = lisbonISO(NEXT_DRAW) !== INFO.nextDrawISO;
+  document.getElementById('jackpotCap').innerHTML = stale
+    ? L('estimativa pode estar desatualizada · confirma em ', 'estimate may be out of date · check ') + SC_LINK
+    : L('jackpot estimado · confirmar em ', 'estimated jackpot · check ') + SC_LINK;
+  if (heroDone) document.getElementById('jackpot').textContent = money(INFO.nextJackpot);
+}
+let heroDone = false;
+function initHero() {
+  heroTexts();
+  const el = document.getElementById('jackpot'), target = INFO.nextJackpot, t0 = performance.now(), dur = 1100;
+  if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) { el.textContent = money(target); heroDone = true; }
+  else { const tick = t => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3); el.textContent = money(Math.round(target * e)); if (p < 1) requestAnimationFrame(tick); else heroDone = true; }; requestAnimationFrame(tick); }
+  const pad = n => String(n).padStart(2, '0');
+  const upd = () => { let diff = NEXT_DRAW - new Date(); if (diff < 0) diff = 0; document.getElementById('cdD').textContent = pad(Math.floor(diff / 86400000)); document.getElementById('cdH').textContent = pad(Math.floor(diff % 86400000 / 3600000)); document.getElementById('cdM').textContent = pad(Math.floor(diff % 3600000 / 60000)); document.getElementById('cdS').textContent = pad(Math.floor(diff % 60000 / 1000)); };
+  upd(); setInterval(upd, 1000);
+}
+function renderLastDraw(){
+  if(!DATA.lastDraw) return;
+  document.getElementById('lastBalls').innerHTML=DATA.lastNums.map(n=>`<span class="mini">${String(n).padStart(2,'0')}</span>`).join('')+DATA.lastStars.map(s=>`<span class="mini s">${String(s).padStart(2,'0')}</span>`).join('');
+  document.getElementById('lastDrawInfo').textContent=dShort(DATA.lastDraw)+(DATA.live?'':L(' (local)',' (local copy)'));
+}
+
+// ─── MODO ────────────────────────────────────────────────────────────────────
+let currentMode='hot';
+const MODE_INFO={
+  hot:{  label:'Mais sorteados · 5 chaves',  desc:'Escolhe os números historicamente mais sorteados. Não há vantagem estatística — cada sorteio é independente — mas garante que jogas os números com maior histórico de saídas.', btnTxt:'Gerar 5 chaves (hot numbers)', note:'Usa os <b>top 20 números</b> mais sorteados de <b id="noteDraws">…</b> sorteios. Não aumenta a probabilidade de ganhar.', tags:'combo-tag' },
+  cov5:{ label:'Cobertura mínima · 5 chaves', desc:'Gera 5 chaves com sobreposição mínima entre si: cada número aparece no máximo 1×. Com 5×5=25 apostas distintas cobres 50% dos 50 números possíveis. Melhora ligeiramente a hipótese de ganhar categorias inferiores (2-3 acertos).', btnTxt:'Gerar 5 chaves (cobertura)', note:'Cobertura mínima: cada número aparece <b>no máximo 1×</b>. Mais eficiente se apostares várias chaves.', tags:'combo-tag teal' },
+  cov10:{ label:'Cobertura total · 10 chaves', desc:'Gera 10 chaves sem repetição de números: cobre exactamente os 50 números possíveis, cada um exactamente 1×. A cada sorteio, qualquer número que saia estará em exactamente 1 das tuas 10 chaves. Custo: €25.', btnTxt:'Gerar 10 chaves (cobertura total)', note:'Cobertura <b>100%</b>: todos os 50 números cobertos, cada um 1×. Custo €25 · qualquer nº sorteado aparece numa das tuas chaves.', tags:'combo-tag teal' }
+};
+
+const MODE_EN={
+  hot:{ desc:'Picks the numbers drawn most often so far. There is no statistical edge, since every draw is independent, but you do play the numbers with the longest track record.', btnTxt:'Generate 5 lines (hot numbers)', note:'Uses the <b>top 20 numbers</b> drawn most often in <b id="noteDraws">…</b> draws. It does not raise your odds of winning.' },
+  cov5:{ desc:'Generates 5 lines with minimal overlap: each number appears at most once. With 5×5=25 distinct numbers you cover 50% of the 50 possible numbers. It slightly improves your chance at the lower prize tiers (2-3 matches).', btnTxt:'Generate 5 lines (coverage)', note:'Minimal coverage: each number appears <b>at most once</b>. More efficient if you play several lines.' },
+  cov10:{ desc:'Generates 10 lines with no repeated numbers: it covers exactly all 50 numbers, each one once. In every draw, any number that comes out will be in exactly 1 of your 10 lines. Cost: €25.', btnTxt:'Generate 10 lines (full coverage)', note:'Coverage <b>100%</b>: all 50 numbers covered, each once. Cost €25 · any drawn number appears in one of your lines.' }
+};
+const mi=m=>LANG==='en'?{...MODE_INFO[m],...MODE_EN[m]}:MODE_INFO[m];
+let btnRegen=false, lastRender=null, generatedOnce=false;
+const regenLabel=()=>mi(currentMode).btnTxt.replace(L('Gerar','Generate'),L('Regerar','Regenerate'));
+function refreshModeTexts(){
+  const info=mi(currentMode);
+  document.getElementById('modeDesc').textContent=info.desc;
+  document.getElementById('btnText').textContent=btnRegen?regenLabel():info.btnTxt;
+  document.getElementById('ctaNote').innerHTML=info.note;
+  const nd=document.getElementById('noteDraws'); if(nd&&DATA.draws) nd.textContent=DATA.draws;
+}
+function setGenHint(){
+  document.getElementById('genHint').textContent=generatedOnce?L(`${DATA.draws} sorteios analisados`,`${DATA.draws} draws analyzed`):L('dados em direto','live data');
+}
+function switchTab(mode){
+  currentMode=mode;
+  ['hot','cov5','cov10'].forEach(m=>document.getElementById('tab'+m.charAt(0).toUpperCase()+m.slice(1)).classList.toggle('on',m===mode));
+  btnRegen=false; refreshModeTexts();
+  // clear previous results
+  lastRender=null;
+  document.getElementById('combosInner').innerHTML='';
+  document.getElementById('covSection').style.display='none';
+}
+
+// ─── ALGORITMOS ──────────────────────────────────────────────────────────────
+function validateCombination(numbers){
+  const s=[...numbers].sort((a,b)=>a-b);
+  let c=1,mx=1; for(let i=1;i<s.length;i++){if(s[i]===s[i-1]+1){c++;mx=Math.max(mx,c);}else c=1;}
+  if(mx>2) return false;
+  const ev=numbers.filter(n=>n%2===0).length; if(ev===0||ev===5) return false;
+  const dec=[0,0,0,0,0]; numbers.forEach(n=>dec[Math.min(4,Math.floor((n-1)/10))]++);
+  if(dec.filter(d=>d===0).length>3) return false;
+  return true;
+}
+
+// Hot: weighted sample from top 20
+function pickWeighted(pool,count,seed){
+  const bag=[]; pool.forEach(s=>{const w=Math.max(1,Math.round(s.freq));for(let i=0;i<w;i++)bag.push(s.number);});
+  const sel=[]; let a=0;
+  while(sel.length<count&&a<20000){const idx=Math.floor((Math.sin(seed*1337+a*79)*0.5+0.5)*bag.length),n=bag[idx];if(n&&!sel.includes(n))sel.push(n);a++;}
+  let i=0; while(sel.length<count&&i<pool.length){if(!sel.includes(pool[i].number))sel.push(pool[i].number);i++;}
+  return sel;
+}
+function makeHotCombo(numberPool,starPool,idx){
+  const seed=Date.now()+idx*7919; let nums=[];
+  for(let a=0;a<250;a++){const c=pickWeighted(numberPool,5,seed+a*17);if(c.length===5&&validateCombination(c)){nums=c.sort((x,y)=>x-y);break;}}
+  if(nums.length<5) nums=numberPool.slice(0,5).map(s=>s.number).sort((x,y)=>x-y);
+  const stars=pickWeighted(starPool,2,seed+4001).sort((x,y)=>x-y);
+  const map=new Map(numberPool.map(s=>[s.number,s]));
+  const avg=nums.reduce((t,n)=>t+(map.get(n)?.frequency||0),0)/nums.length;
+  return {nums,stars,avg,newCovered:0,newStarsCovered:0};
+}
+
+// Coverage: greedy set cover weighted by frequency
+function makeCoverageCombo(allNums,allStars,coveredNums,coveredStars,seed){
+  const freqMapN=new Map(allNums.map(s=>[s.number,s.freq]));
+  const freqMapS=new Map(allStars.map(s=>[s.number,s.freq]));
+  const maxFreqN=Math.max(...allNums.map(s=>s.freq));
+  const maxFreqS=Math.max(...allStars.map(s=>s.freq));
+
+  function scoreN(n){ return (coveredNums.has(n)?0:3) + (freqMapN.get(n)||0)/maxFreqN + (Math.sin(seed*997+n*317)*0.5+0.5)*0.25; }
+  function scoreS(s){ return (coveredStars.has(s)?0:3) + (freqMapS.get(s)||0)/maxFreqS + (Math.sin(seed*997+s*991)*0.5+0.5)*0.25; }
+
+  const ranked=[...Array(50)].map((_,i)=>i+1).sort((a,b)=>scoreN(b)-scoreN(a));
+  let best=null;
+  for(let attempt=0;attempt<600;attempt++){
+    const noise=(Math.sin(seed+attempt*7919)*0.5+0.5);
+    const poolSize=18+Math.floor(noise*10);
+    const pool=[...ranked.slice(0,poolSize)];
+    const pick=[];
+    while(pick.length<5&&pool.length>0){
+      const r=(Math.sin(seed*1337+attempt*79+pick.length*113)*0.5+0.5);
+      const idx=Math.floor(r*Math.min(8,pool.length));
+      pick.push(pool.splice(idx,1)[0]);
+    }
+    if(pick.length===5&&validateCombination(pick)){
+      const nc=pick.filter(n=>!coveredNums.has(n)).length;
+      if(!best||nc>best.nc) best={nums:pick.sort((a,b)=>a-b),nc};
+      if(nc>=5) break;
+    }
+  }
+  if(!best) best={nums:ranked.slice(0,5).sort((a,b)=>a-b),nc:0};
+
+  const starRanked=[...Array(12)].map((_,i)=>i+1).sort((a,b)=>scoreS(b)-scoreS(a));
+  const stars=starRanked.slice(0,2).sort((a,b)=>a-b);
+  const nsc=stars.filter(s=>!coveredStars.has(s)).length;
+  return {nums:best.nums,stars,avg:best.nums.reduce((t,n)=>t+(freqMapN.get(n)||0)/maxFreqN,0)/5,newCovered:best.nc,newStarsCovered:nsc};
+}
+
+function generateHot(count){
+  const numberPool=[...DATA.numbers].sort((a,b)=>b.freq-a.freq).slice(0,20);
+  const starPool=[...DATA.stars].sort((a,b)=>b.freq-a.freq).slice(0,8);
+  const combos=[],used=new Set();
+  for(let i=0;i<count;i++){
+    let c,t=0; do{c=makeHotCombo(numberPool,starPool,i*100+t);t++;}while(used.has(c.nums.join(','))&&t<60);
+    used.add(c.nums.join(',')); combos.push(c);
+  }
+  return combos;
+}
+
+function generateCoverage(count){
+  const coveredNums=new Set(),coveredStars=new Set();
+  const combos=[];
+  for(let i=0;i<count;i++){
+    const seed=Date.now()+i*7919;
+    const c=makeCoverageCombo(DATA.numbers,DATA.stars,coveredNums,coveredStars,seed);
+    c.nums.forEach(n=>coveredNums.add(n)); c.stars.forEach(s=>coveredStars.add(s));
+    combos.push(c);
+  }
+  return combos;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function comboMeta(nums,fMap,mode,combo){
+  const s=[...nums].sort((a,b)=>a-b);
+  const ev=nums.filter(n=>n%2===0).length,odd=5-ev,sum=s.reduce((a,b)=>a+b,0);
+  let top=s[0],tf=-1; s.forEach(n=>{const f=fMap.get(n)?.freq??0;if(f>tf){tf=f;top=n;}});
+  const avgPct=(s.reduce((a,n)=>a+(fMap.get(n)?.frequency||0),0)/s.length*100).toFixed(1);
+  const base=[L(`${odd} ímpar${odd!==1?'es':''} · ${ev} par${ev!==1?'es':''}`,`${odd} odd · ${ev} even`),L(`soma ${sum}`,`sum ${sum}`),L(`freq. média ${avgPct}%`,`avg. freq. ${avgPct}%`),L(`mais sorteado: nº ${top} (${tf}×)`,`most drawn: no. ${top} (${tf}×)`)].join('  ·  ');
+  if(mode==='hot') return base;
+  return base+(combo.newCovered>0?`  ·  <span class="cov-badge">${L(`+${combo.newCovered} nº${combo.newCovered!==1?'s':''} novos`,`+${combo.newCovered} new no.`)}</span>`:`  ·  <span class="cov-badge">${L('todos cobertos','all covered')}</span>`);
+}
+
+function renderCombos(combos,mode){
+  lastRender={combos,mode};
+  const fMap=new Map(DATA.numbers.map(s=>[s.number,s]));
+  const hot=new Set([...DATA.numbers].sort((a,b)=>b.freq-a.freq).slice(0,15).map(s=>s.number));
+  const tagClass=mode==='hot'?'combo-tag':'combo-tag teal';
+  const inner=document.getElementById('combosInner'); inner.innerHTML='';
+  combos.forEach((c,idx)=>{
+    const el=document.createElement('div'); el.className='combo'; el.style.animationDelay=(idx*60)+'ms';
+    const tagLabel=mode==='hot'?L(`freq. média ${Math.round(c.avg*100)}%`,`avg. freq. ${Math.round(c.avg*100)}%`):L(`+${c.newCovered} nº${c.newCovered!==1?'s':''} novos · +${c.newStarsCovered}★`,`+${c.newCovered} new no. · +${c.newStarsCovered}★`);
+    el.innerHTML=`
+      <div class="combo-top">
+        <span class="combo-id">${L('chave','line')} <b>${String(idx+1).padStart(2,'0')}</b></span>
+        <span class="${tagClass}">${tagLabel}</span>
+      </div>
+      <div class="balls">
+        ${c.nums.map(n=>{const st=fMap.get(n);return`<div class="ball ${hot.has(n)?'hot':''}" title="${L('Nº','No.')} ${n} · ${L('saiu','drawn')} ${st?st.freq:0}× · ${st?st.days:'?'} ${L('dias sem sair','days since last draw')}"><span>${String(n).padStart(2,'0')}</span></div>`;}).join('')}
+        <div class="sep"></div><span class="star-mark">★</span>
+        ${c.stars.map(s=>`<div class="ball star"><span>${String(s).padStart(2,'0')}</span></div>`).join('')}
+      </div>
+      <div class="combo-meta">${comboMeta(c.nums,fMap,mode,c)}</div>`;
+    inner.appendChild(el);
+  });
+}
+
+function renderCoverageMap(combos){
+  const covSection=document.getElementById('covSection');
+  const allCovered=new Set(combos.flatMap(c=>c.nums));
+  const starsCovered=new Set(combos.flatMap(c=>c.stars));
+  const pct=Math.round(allCovered.size/50*100);
+  const allNums=combos.flatMap(c=>c.nums);
+  const counts={}; for(let n=1;n<=50;n++) counts[n]=0; allNums.forEach(n=>counts[n]++);
+  const maxRep=Math.max(...Object.values(counts));
+
+  covSection.style.display='block';
+  covSection.innerHTML=`
+    <div class="cov-section" style="animation:rise .4s forwards;opacity:0;">
+      <div class="cov-title">${L('mapa de cobertura dos 50 números','coverage map of the 50 numbers')}</div>
+      <div class="cov-grid">
+        ${[...Array(50)].map((_,i)=>{const n=i+1,cnt=counts[n];const cls=cnt>0?'covered':'uncovered';const tip=cnt>0?L(`Nº ${n} · aparece ${cnt}× neste conjunto`,`No. ${n} · appears ${cnt}× in this set`):L(`Nº ${n} · não coberto`,`No. ${n} · not covered`);return`<div class="cov-num ${cls}" title="${tip}">${String(n).padStart(2,'0')}</div>`;}).join('')}
+      </div>
+      <div class="cov-stats">
+        <div class="cov-stat"><span class="val g">${allCovered.size}/50</span> ${L('números cobertos','numbers covered')}</div>
+        <div class="cov-stat"><span class="val g">${pct}%</span> ${L('cobertura','coverage')}</div>
+        <div class="cov-stat"><span class="val y">${maxRep}×</span> ${L('repetição máxima','max repeats')}</div>
+        <div class="cov-stat"><span class="val">${starsCovered.size}/12</span> ${L('estrelas cobertas','stars covered')}</div>
+      </div>
+    </div>`;
+}
+
+function renderHot(){
+  const hot=[...DATA.numbers].sort((a,b)=>b.freq-a.freq).slice(0,10),max=hot[0].freq||1;
+  document.getElementById('hotSection').innerHTML=hot.map(s=>{
+    const pct=Math.round(s.freq/max*100);
+    return`<div class="hot-row" title="${L('nº','no.')} ${s.number} · ${s.freq}× ${L('em','in')} ${DATA.draws} ${L('sorteios','draws')} · ${s.days} ${L('dias sem sair','days since last draw')}"><span class="hot-num">${String(s.number).padStart(2,'0')}</span><div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div><span class="hot-count">${s.freq}×</span></div>`;
+  }).join('');
+}
+
+// ─── GERAR ───────────────────────────────────────────────────────────────────
+async function generate(){
+  const btn=document.getElementById('genBtn'),icon=document.getElementById('btnIcon'),txt=document.getElementById('btnText');
+  btn.classList.add('loading'); icon.innerHTML='<span class="spin">⟳</span>'; txt.textContent=L('A gerar…','Generating…');
+  if(DATA.numbers.length===0) await loadData();
+  await new Promise(r=>setTimeout(r,350));
+
+  let combos;
+  if(currentMode==='hot') combos=generateHot(5);
+  else if(currentMode==='cov5') combos=generateCoverage(5);
+  else combos=generateCoverage(10);
+
+  renderCombos(combos,currentMode);
+  if(currentMode!=='hot') renderCoverageMap(combos);
+  else document.getElementById('covSection').style.display='none';
+  renderHot();
+  generatedOnce=true; setGenHint();
+
+  btn.classList.remove('loading'); icon.innerHTML='✦'; btnRegen=true; txt.textContent=regenLabel();
+}
+
+// ─── CALCULADORA ─────────────────────────────────────────────────────────────
+function calcOdds(){
+  const budget=parseFloat(document.getElementById('budget').value)||0;
+  const lines=Math.floor(budget/INFO.pricePerLine);
+  const oL=document.getElementById('oLines'),oJ=document.getElementById('oJackpot'),oA=document.getElementById('oAny'),oC=document.getElementById('oCtx');
+  if(lines<=0){oL.textContent='0';oJ.textContent='—';oA.innerHTML='—<small>'+L('13 categorias, a partir de 2 nºs','13 prize tiers, from 2 numbers')+'</small>';oC.textContent=L('precisas de pelo menos €2,50','you need at least €2.50');return;}
+  const jackOne=Math.round(INFO.jackpotOdds/lines);
+  const anyP=1-Math.pow(1-1/INFO.anyPrizeOdds,lines);
+  oL.textContent=num0.format(lines)+(lines===1?L(' aposta',' line'):L(' apostas',' lines'));
+  oJ.innerHTML=`${L('1 em','1 in')} ${num0.format(jackOne)}<small>${(lines/INFO.jackpotOdds*100).toPrecision(2)}%</small>`;
+  const anyPct=anyP*100;
+  oA.innerHTML=`≈ ${anyPct>=99.5?'~100':anyPct.toFixed(anyPct<10?1:0)}%<small>${L('13 categorias, a partir de 2 nºs','13 prize tiers, from 2 numbers')}</small>`;
+  oC.textContent=jackOne>30000000?L('mais raro do que seres atingido por um raio','rarer than being struck by lightning'):jackOne>1000000?L('na ordem de 1 em vários milhões','on the order of one in several million'):L(`1 em ${num0.format(jackOne)}, ainda muito improvável`,`1 in ${num0.format(jackOne)}, still very unlikely`);
+}
+function initCalc(){
+  const presets=document.getElementById('presets'),input=document.getElementById('budget');
+  presets.addEventListener('click',e=>{const b=e.target.closest('.preset');if(!b)return;[...presets.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');input.value=b.dataset.v;calcOdds();});
+  input.addEventListener('input',()=>{[...presets.children].forEach(x=>x.classList.remove('on'));calcOdds();});
+  calcOdds();
+}
+
+// ─── ARRANQUE ────────────────────────────────────────────────────────────────
+
+// ─── PARTILHA & HISTÓRICO ────────────────────────────────────────────────────
+const TAX_THRESHOLD = 5000;
+const TAX_RATE      = 0.20;
+const FRIENDS = ['P1','P2','P3','P4'];
+const friendLabel = id => /^P\d$/.test(id) ? L('Jogador ','Player ') + id[1] : id;
+
+function applyTax(gross) {
+  if (gross <= TAX_THRESHOLD) return { gross, tax:0, net:gross };
+  const tax = gross * TAX_RATE;
+  return { gross, tax, net: gross - tax };
+}
+
+function toggleFriend(btn) {
+  btn.classList.toggle('on');
+  btn.querySelector('.fb-check').textContent = btn.classList.contains('on') ? '✓' : '';
+  calcSplit();
+}
+
+function setPrize(btn) {
+  document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const v = parseFloat(btn.dataset.prize);
+  const note = document.getElementById('prize2note');
+  if (btn.dataset.prize === '0') {
+    document.getElementById('splitPrize').value = '';
+    document.getElementById('splitPrize').focus();
+    note.style.display = 'none';
+  } else {
+    document.getElementById('splitPrize').value = v;
+    note.style.display = btn.dataset.prize === '500000' ? 'block' : 'none';
+  }
+  calcSplit();
+}
+
+function onPrizeInput() {
+  document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('prize2note').style.display = 'none';
+  calcSplit();
+}
+
+function calcSplit() {
+  const prize      = parseFloat(document.getElementById('splitPrize').value) || 0;
+  const totalStake = parseFloat(document.getElementById('splitTotal').value) || 0;
+  const active     = [...document.querySelectorAll('#friendBtns .friend-btn.on')].map(b => b.dataset.name);
+  const out        = document.getElementById('splitResults');
+
+  if (prize <= 0 || active.length === 0) {
+    out.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--muted);padding:12px 0">' +
+      (prize <= 0 ? L('Introduz um valor de prémio acima.','Enter a prize amount above.') : L('Selecciona pelo menos uma pessoa para ver a partilha.','Select at least one person to see the split.')) + '</div>';
+    return;
+  }
+
+  // Prémio dividido em partes iguais entre os seleccionados.
+  // Se só 1 pessoa → recebe o prémio todo.
+  const perPerson = prize / active.length;
+
+  function fmtEur(v) { return money(v); }
+  function taxBlock(t) {
+    const taxed = t.gross > TAX_THRESHOLD;
+    return `<div class="split-tax-row">
+      <div class="split-tax-item"><span class="tk">${L('bruto','gross')}</span><span class="tv">${fmtEur(t.gross)}</span></div>
+      ${taxed
+        ? `<div class="split-tax-item"><span class="tk">${L('Imposto do selo 20%','Stamp duty 20%')}</span><span class="tv tax">- ${fmtEur(t.tax)}</span></div>
+           <div class="split-tax-item"><span class="tk">${L('líquido','net')}</span><span class="tv net">${fmtEur(t.net)}</span></div>`
+        : `<div class="split-tax-item"><span class="tv net">${L('isento de imposto (≤ €5.000)','tax-free (≤ €5,000)')}</span></div>`}
+    </div>`;
+  }
+
+  const groupLabel = active.length === 1
+    ? L('prémio total (sozinho)','full prize (solo)')
+    : L(`1/${active.length} partes iguais${totalStake > 0 ? ' · grupo ' + eur0.format(Math.round(totalStake)) : ''}`,`1/${active.length} equal shares${totalStake > 0 ? ' · group ' + eur0.format(Math.round(totalStake)) : ''}`);
+
+  let html = '';
+  active.forEach(name => {
+    const t = applyTax(perPerson);
+    html += `<div class="split-person">
+      <div class="split-row-head">
+        <span class="split-name">🤝 ${friendLabel(name)}</span>
+        <span class="split-stake-badge">${groupLabel}</span>
+      </div>
+      <div class="split-gross">${fmtEur(t.gross)}</div>
+      ${taxBlock(t)}
+    </div>`;
+  });
+
+  out.innerHTML = html;
+}
+
+// ─── HISTÓRICO ────────────────────────────────────────────────────────────────
+const HIST_KEY = 'em_hist_v1';
+let histData = [];
+
+function histLoad() {
+  try { histData = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch { histData = []; }
+}
+function histSave() {
+  try { localStorage.setItem(HIST_KEY, JSON.stringify(histData)); } catch {}
+}
+
+function hKeyAdd() {
+  const wrap = document.getElementById('hKeysWrap');
+  if (wrap.children.length >= 10) return;
+  const n = wrap.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'hkey-row';
+  row.innerHTML = `<input type="text" class="hkey-input" placeholder="${keyPh(n)}" maxlength="30">`;
+  wrap.appendChild(row);
+}
+function hKeyRemove() {
+  const wrap = document.getElementById('hKeysWrap');
+  if (wrap.children.length > 1) wrap.removeChild(wrap.lastChild);
+}
+function hKeyRead() {
+  return [...document.querySelectorAll('.hkey-input')]
+    .map(i => i.value.trim()).filter(v => v.length > 0);
+}
+function hKeyReset() {
+  const wrap = document.getElementById('hKeysWrap');
+  wrap.innerHTML = '<div class="hkey-row"><input type="text" class="hkey-input" placeholder="'+keyPh(1)+'" maxlength="30"></div>';
+}
+
+// Normalise a key string to comparable form: sorted numbers
+function normaliseKey(s) {
+  const nums = s.match(/\d+/g);
+  if (!nums || nums.length < 5) return null;
+  return nums.map(Number).sort((a,b)=>a-b).join('-');
+}
+
+function histAdd() {
+  const date  = document.getElementById('hDate').value;
+  const whoEl = document.getElementById('hWho');
+  const who   = [...whoEl.selectedOptions].map(o => o.value);
+  const stake = parseFloat(document.getElementById('hStake').value) || 0;
+  const won   = parseFloat(document.getElementById('hWon').value)   || 0;
+  const keys  = hKeyRead();
+  if (!date || who.length === 0 || stake <= 0) {
+    alert(L('Preenche a data, selecciona pelo menos uma pessoa e indica o valor apostado.','Fill in the date, select at least one person and enter the amount staked.')); return;
+  }
+  histData.push({ id: Date.now(), date, who, stake, won, keys });
+  histData.sort((a,b) => b.date.localeCompare(a.date));
+  histSave();
+  histRender();
+  document.getElementById('hWon').value = '0';
+  hKeyReset();
+}
+
+function histDelete(id) {
+  histData = histData.filter(r => r.id !== id);
+  histSave();
+  histRender();
+}
+
+function histRender() {
+  const body    = document.getElementById('histBody');
+  const empty   = document.getElementById('histEmpty');
+  const totWrap = document.getElementById('histTotals');
+
+  if (histData.length === 0) {
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    totWrap.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  totWrap.style.display = 'grid';
+
+  const fmtD = d => { const [y,m,dy]=d.split('-'); return `${dy}/${m}/${y}`; };
+  const fmtE = v => eur0.format(Math.round(v*100)/100);
+
+  // Build set of all normalised keys across all records to detect repetitions
+  const allNorm = {};  // normKey -> count
+  histData.forEach(r => (r.keys||[]).forEach(k => {
+    const n = normaliseKey(k); if (n) allNorm[n] = (allNorm[n]||0) + 1;
+  }));
+
+  body.innerHTML = histData.map(r => {
+    const ret = r.stake > 0 ? ((r.won - r.stake) / r.stake * 100) : 0;
+    const retClass = ret > 0 ? 'pos' : ret < 0 ? 'neg' : 'zero';
+    const retStr = r.stake > 0 ? (ret >= 0 ? '+' : '') + ret.toFixed(0) + '%' : '—';
+    const whoStr = r.who.map(friendLabel).join(', ');
+
+    const keysHtml = (r.keys && r.keys.length > 0)
+      ? r.keys.map(k => {
+          const n = normaliseKey(k);
+          const repeated = n && allNorm[n] > 1;
+          const tip = repeated ? L(`Esta chave foi jogada ${allNorm[n]}× no histórico`,`This line was played ${allNorm[n]}× in your history`) : k;
+          return `<span class="hist-key-tag${repeated?' repeated':''}" title="${tip}">${k}</span>`;
+        }).join('')
+      : '<span style="color:var(--muted-2);font-size:10px;">—</span>';
+
+    return `<tr>
+      <td>${fmtD(r.date)}</td>
+      <td>${whoStr}</td>
+      <td class="hist-keys-cell">${keysHtml}</td>
+      <td>${fmtE(r.stake)}</td>
+      <td style="color:${r.won > 0 ? 'var(--green)' : 'var(--muted)'}">${fmtE(r.won)}</td>
+      <td class="hist-ret ${retClass}">${retStr}</td>
+      <td><button class="hist-del" onclick="histDelete(${r.id})" title="${L('Apagar','Delete')}">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // Totals
+  const totalStake = histData.reduce((s,r) => s + r.stake, 0);
+  const totalWon   = histData.reduce((s,r) => s + r.won,   0);
+  const balance    = totalWon - totalStake;
+  const avgRet     = totalStake > 0 ? (balance / totalStake * 100) : 0;
+  document.getElementById('htStake').textContent = fmtE(totalStake);
+  document.getElementById('htWon').textContent   = fmtE(totalWon);
+  const balEl = document.getElementById('htBalance');
+  balEl.textContent = (balance >= 0 ? '+' : '') + fmtE(balance);
+  balEl.className   = 'v ' + (balance > 0 ? 'g' : balance < 0 ? 'r' : '');
+  const retEl = document.getElementById('htRet');
+  retEl.textContent = (avgRet >= 0 ? '+' : '') + avgRet.toFixed(1) + '%';
+  retEl.className   = 'v ' + (avgRet > 0 ? 'g' : avgRet < 0 ? 'r' : '');
+
+  // Key repetition summary
+  const repeated = Object.entries(allNorm).filter(([,c])=>c>1);
+  const existing = document.getElementById('histKeyNote');
+  if (existing) existing.remove();
+  if (repeated.length > 0) {
+    const note = document.createElement('p');
+    note.id = 'histKeyNote';
+    note.style.cssText = "font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-top:12px;line-height:1.6;";
+    note.innerHTML = L(`⚠ ${repeated.length} chave${repeated.length>1?'s':''} repetida${repeated.length>1?'s':''} no histórico (marcadas a dourado). Jogar as mesmas chaves repetidamente não aumenta as probabilidades de ganhar.`,`⚠ ${repeated.length} repeated line${repeated.length>1?'s':''} in your history (marked in gold). Playing the same lines over and over does not improve your odds.`);
+    totWrap.after(note);
+  }
+}
+
+function histInit() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('hDate').value = today;
+  histLoad();
+  histRender();
+}
+
+// ─── ROLLOVER PROBABILITY ────────────────────────────────────────────────────
+// P(nenhuma das N apostas ganha) = (1 - 1/ODDS)^N  ≈  e^(-N/ODDS)
+const JACKPOT_ODDS = 139838160;
+
+function rolloverProb(nTickets) {
+  return Math.exp(-nTickets / JACKPOT_ODDS) * 100;
+}
+
+function renderRolloverGrid() {
+  const scenarios = [
+    { label: 'Jackpot baixo (~€17–30M)',    n: 50e6,  note: '~50M apostas' },
+    { label: 'Jackpot médio (~€38M)',        n: 70e6,  note: '~70M apostas' },
+    { label: 'Jackpot alto (~€80M)',         n: 100e6, note: '~100M apostas' },
+    { label: 'Jackpot muito alto (~€130M)',  n: 120e6, note: '~120M apostas' },
+    { label: 'Jackpot máximo (~€200M+)',     n: 180e6, note: '~180M apostas' },
+    { label: 'Recorde (~€250M)',             n: 250e6, note: '~250M apostas' },
+  ];
+  const grid = document.getElementById('rolloverGrid');
+  if (!grid) return;
+  grid.innerHTML = scenarios.map(sc => {
+    const pct = rolloverProb(sc.n);
+    const cls = pct >= 65 ? 'hi' : pct >= 40 ? 'mid' : 'lo';
+    return `<div class="rv-box">
+      <div class="k">${sc.label}</div>
+      <div class="v ${cls}">${pct.toFixed(0)}%</div>
+      <div class="sub">prob. de rollover<br>${sc.note} vendidas</div>
+    </div>`;
+  }).join('');
+  const el = document.getElementById('currentRollover');
+  if (el) el.textContent = rolloverProb(100e6).toFixed(0) + '%';
+}
+
+// ─── MÚLTIPLAS ───────────────────────────────────────────────────────────────
+// C(n, k) = n! / (k! * (n-k)!)
+function C(n, k) {
+  if (k > n) return 0;
+  if (k === 0 || k === n) return 1;
+  k = Math.min(k, n - k);
+  let r = 1;
+  for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1);
+  return Math.round(r);
+}
+
+function multApostas(nums, stars) {
+  // C(nums, 5) × C(stars, 2)
+  return C(nums, 5) * C(stars, 2);
+}
+
+function buildMultTable() {
+  const tbody = document.getElementById('multTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  for (let n = 5; n <= 10; n++) {
+    const tr = document.createElement('tr');
+    let cells = `<td>${n} ${L('nºs','nos.')}</td>`;
+    for (let s = 2; s <= 10; s++) {
+      const ap = multApostas(n, s);
+      const custo = ap * 2.5;
+      const isSimples = n === 5 && s === 2;
+      const cls = isSimples ? 'simples' : '';
+      const custoFmt = custo >= 1000 ? (custo/1000).toFixed(custo%1000===0?0:1)+'k€' : custo.toFixed(custo%1===0?0:2)+'€';
+      cells += `<td class="${cls}" data-n="${n}" data-s="${s}">
+        <span class="ap">${num0.format(ap)}</span>
+        <span class="cu">${custoFmt}</span>
+      </td>`;
+    }
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  }
+}
+
+function updateMult() {
+  const nums  = parseInt(document.getElementById('mNums').value);
+  const stars = parseInt(document.getElementById('mStars').value);
+  document.getElementById('mNumsVal').textContent  = nums;
+  document.getElementById('mStarsVal').textContent = stars;
+
+  const ap    = multApostas(nums, stars);
+  const custo = ap * 2.5;
+  const jackP = 1 - Math.pow(1 - 1/139838160, ap);  // P(pelo menos 1 jackpot)
+  const jackOne = Math.round(139838160 / ap);
+
+  document.getElementById('mApostas').textContent = num0.format(ap) + (ap===1?L(' aposta',' line'):L(' apostas',' lines'));
+  document.getElementById('mCusto').innerHTML     = eur0.format(custo) + (custo>500?`<small>${L('por sorteio','per draw')}</small>`:'');
+  document.getElementById('mJackpot').innerHTML   = `${L('1 em','1 in')} ${num0.format(jackOne)}<small>${(jackP*100).toPrecision(2)}%</small>`;
+  document.getElementById('mVs').innerHTML        = L(`${num0.format(ap)}× mais<small>que 1 aposta simples</small>`,`${num0.format(ap)}× more<small>than 1 single line</small>`);
+
+  // Formula explanation
+  const cN = C(nums,5), cS = C(stars,2);
+  document.getElementById('mFormula').innerHTML =
+    `C(${nums},5) × C(${stars},2) = ${num0.format(cN)} × ${num0.format(cS)} = <b>${num0.format(ap)} ${L('apostas','lines')}</b>`+
+    ` &nbsp;·&nbsp; ${L('custo','cost')} ${eur0.format(custo)}`+
+    (nums===5&&stars===2?` &nbsp;·&nbsp; ${L('aposta simples','single line')}`:'');
+
+  // Highlight active cell in table
+  document.querySelectorAll('#multTableBody td').forEach(td => {
+    const n = parseInt(td.dataset.n), s = parseInt(td.dataset.s);
+    if (!isNaN(n)) {
+      td.classList.toggle('active', n===nums && s===stars);
+    }
+  });
+}
+
+// ─── ARRANQUE ────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async ()=>{
+  initHero();
+  initCalc();
+  switchTab('hot');
+  buildMultTable();
+  updateMult();
+  calcSplit();
+  histInit();
+  renderRolloverGrid();
+  renderRecords();
+  applyLang();
+  await loadData();
+  loadRates();
+  generate();
+});
+</script>
+</body>
+</html>
