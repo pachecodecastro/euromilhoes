@@ -17,6 +17,9 @@ It works in English and Portuguese (use the PT/EN button in the top corner). In 
 - **Odds calculator** for budgets from €2.50 to €1,000,000.
 - **Multiple bets** using C(n,5) × C(s,2), with a reference table.
 - **Prize split** between any number of people, with stamp duty (20% on prizes above €5,000, applied to the whole prize).
+- **Light and dark themes.** It follows the system setting, and the ☀/☾ button switches and remembers the choice.
+- **Reminders.** "Add to calendar" downloads an `.ics` event that repeats every Tuesday and Friday at the time you pick (Lisbon time). Nothing is stored on any server.
+- **Suggestions box.** With `SUGGEST_ENDPOINT` set in `index.html` (a Formspree form URL), suggestions are sent there. While it is empty, the app copies the text and opens the Quinto Ponto Cardeal contact page.
 - **Game history** with percentage return and detection of repeated lines. It is stored only in your browser: nobody else sees it, and there is no login.
 - **Fun facts**, in both languages: the 10 biggest jackpots ever won (checked against euro-millions.com), Tuesday vs. Friday (counted from the CSV), jackpots won in Portugal, winner profiles and rollover odds for the current jackpot.
 
@@ -78,6 +81,8 @@ python3 -m unittest discover -s analysis -v
 
 ```
 index.html                  the whole app (single file, English and Portuguese)
+assets/
+  emblema-qpc.webp          Quinto Ponto Cardeal emblem, shown in the footer
 data/
   euromilhoes.csv           local copy of the results (updated by the workflow, used as a fallback)
 analysis/
@@ -123,6 +128,7 @@ Results come from a public copy kept by daowa89 ([lottery-archive](https://githu
 - The draw is at about 21:05 CET in Paris, which is 20:05 in Lisbon. The countdown is a plain calculation from that, not a feed.
 - The jackpot and next draw date shown in the app are fixed values in the code (`INFO`), not an API. When the date no longer matches, the app warns that the estimate may be out of date. To update them, edit `nextJackpot` and `nextDrawISO` in `INFO` (current values were checked on euro-millions.com on 7 Nov 2026).
 - The suggested lines use mulberry32 seeded from `crypto.getRandomValues` on every click. They are meant to give varied bets, not to run a fair draw.
+- The suggestions box only contacts Formspree when `SUGGEST_ENDPOINT` is set, and only when someone presses Send. The message and the optional email then go to Formspree and on to the company inbox.
 - On load the app contacts four outside services: the results CSV (raw.githubusercontent.com), the two exchange-rate APIs above and Google Fonts. Without a connection it falls back to local data and system fonts, and everything else works the same.
 - The section on jackpots won in Portugal and the winner profiles were written earlier and have not been rechecked line by line against sources like the records table was. Unsourced estimates and names of private people were removed.
 - Nothing here is financial or legal advice.
@@ -149,4 +155,4 @@ Made by [Quinto Ponto Cardeal](https://quintopontocardeal.org/).
 
 ## License
 
-MIT
+MIT, copyright Quinto Ponto Cardeal.
