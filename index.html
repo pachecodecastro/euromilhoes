@@ -7,6 +7,15 @@
 <title>Imposto Voluntário · Euromilhões</title>
 <meta name="description" content="EuroMillions odds, line generator and prize split, with the math to back it up. English and Portuguese. / Probabilidades, gerador de chaves e partilha de prémio do EuroMilhões, com as contas.">
 <meta name="theme-color" content="#0b1020">
+<script>
+  // Tema escolhido antes de desenhar a página: o que a pessoa guardou, senão o do sistema
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('em_theme'); } catch (e) {}
+    if (t !== 'light' && t !== 'dark') t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1020'/%3E%3Cpath d='M32 10l6.5 14.2 15.5 1.8-11.5 10.5 3.2 15.3L32 43.8 18.3 51.8l3.2-15.3L10 26l15.5-1.8z' fill='%23f5c451'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -406,6 +415,37 @@
   .site-foot { margin-top:22px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); line-height:1.7; }
   .site-foot a { color:var(--gold); text-decoration:none; border-bottom:1px dotted var(--gold); }
   .split-count { width:70px; }
+  .site-foot img { display:block; width:72px; height:auto; margin:0 auto 8px; }
+  .extra-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .extra-card { background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:20px; }
+  .extra-card h3 { font-family:'Fraunces',serif; font-weight:600; font-size:17px; margin-bottom:8px; }
+  .extra-card p { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); line-height:1.7; margin-bottom:12px; }
+  .extra-card select, .extra-card textarea, .extra-card input { font-family:'JetBrains Mono',monospace; font-size:12px; background:var(--ink); border:1px solid var(--line-2); border-radius:8px; color:var(--text); padding:8px 10px; outline:none; width:100%; }
+  .extra-card textarea { min-height:96px; resize:vertical; }
+  .extra-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .extra-row label { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted-2); }
+  .extra-row select { width:auto; }
+  .extra-btn { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; padding:9px 16px; border-radius:9px; border:none; cursor:pointer; background:var(--peri); color:var(--ink); }
+  .extra-btn:hover { filter:brightness(1.1); }
+  .extra-status { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--green); margin-top:10px; line-height:1.6; min-height:1em; }
+  @media (max-width:560px) { .extra-grid { grid-template-columns:1fr; } }
+  .theme-btn { font-family:'JetBrains Mono',monospace; font-size:12px; padding:4px 9px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid var(--line); color:var(--muted); cursor:pointer; }
+  .theme-btn:hover { border-color:var(--line-2); color:var(--text); }
+  .top-btns { display:flex; gap:6px; align-items:center; }
+
+  /* ── Tema claro ── */
+  html[data-theme="light"] {
+    --ink:#f4efe3; --ink-2:#fffdf8; --panel:#ffffff;
+    --line:rgba(30,40,80,.14); --line-2:rgba(30,40,80,.26);
+    --text:#151a30; --muted:#4a5070; --muted-2:#6a6f8c;
+    --gold:#9a6408; --gold-2:#b87a10; --gold-deep:#6e4705;
+    --peri:#3550b8; --green:#0f7a45; --teal:#0a6f9c; --red:#b8322f;
+  }
+  html[data-theme="light"] .bg::before { background: radial-gradient(1200px 700px at 50% -10%,rgba(120,140,230,.18),transparent 60%), radial-gradient(900px 600px at 85% 8%,rgba(245,196,81,.18),transparent 55%); }
+  html[data-theme="light"] .bg::after { display:none; }
+  html[data-theme="light"] .cta, html[data-theme="light"] .lucky-btn { background:linear-gradient(135deg,#ffdd87,#f5c451 60%,#e0a93a); color:#2a1c02; }
+  html[data-theme="light"] .hero, html[data-theme="light"] .combo, html[data-theme="light"] .calc, html[data-theme="light"] .mult-calc, html[data-theme="light"] .split-section { box-shadow:0 18px 40px -28px rgba(30,40,80,.35); }
+  html[data-theme="light"] .extra-btn, html[data-theme="light"] .hist-add-btn { color:#ffffff; }
   .cur-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:6px 0 14px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
   .cur-row select { font-family:inherit; font-size:11px; color:var(--text); background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:8px; padding:5px 8px; }
   .cur-note { flex-basis:100%; font-size:10px; color:var(--muted-2); line-height:1.5; }
@@ -418,7 +458,10 @@
   <div class="top">
     <div class="brand">Imposto Voluntário <b>· Euromilhões</b></div>
     <div class="top-right">
-      <button class="lang-btn" id="langBtn" onclick="toggleLang()" aria-label="Language / Idioma">EN</button>
+      <div class="top-btns">
+        <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Tema / Theme">☀</button>
+        <button class="lang-btn" id="langBtn" onclick="toggleLang()" aria-label="Language / Idioma">EN</button>
+      </div>
       <a class="lucky-btn" href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">
         <span class="lucky-star">✦</span> Carrega aqui para seres milionário
       </a>
@@ -879,11 +922,40 @@
     </div>
   </div>
 
+  <!-- ── LEMBRETES E SUGESTÕES (textos em applyExtrasText) ── -->
+  <div class="sec-head" id="extrasHead"><h2 id="exTitle"></h2><span class="hint" id="exHint"></span></div>
+  <div class="extra-grid" id="extras">
+    <div class="extra-card">
+      <h3 id="remTitle"></h3>
+      <p id="remText"></p>
+      <div class="extra-row">
+        <label for="remHour" id="remHourLabel"></label>
+        <select id="remHour">
+          <option value="10">10:00</option>
+          <option value="13">13:00</option>
+          <option value="18" selected>18:00</option>
+          <option value="19">19:00</option>
+        </select>
+      </div>
+      <button type="button" class="extra-btn" id="remBtn" onclick="downloadReminder()"></button>
+      <div class="extra-status" id="remStatus"></div>
+    </div>
+    <div class="extra-card">
+      <h3 id="sugTitle"></h3>
+      <p id="sugText"></p>
+      <div class="extra-row"><textarea id="sugMsg" maxlength="2000"></textarea></div>
+      <div class="extra-row"><input type="email" id="sugEmail" maxlength="120" autocomplete="email"></div>
+      <button type="button" class="extra-btn" id="sugBtn" onclick="sendSuggestion()"></button>
+      <div class="extra-status" id="sugStatus"></div>
+    </div>
+  </div>
+
   <div class="disclaimer">
     <b>Aviso:</b> o EuroMillions é um sorteio genuinamente aleatório. Nenhuma estratégia — cobertura, frequências históricas ou qualquer outro método — aumenta a probabilidade de acertar o jackpot (1 em 139 838 160 por aposta). A cobertura máxima reduz repetições de números entre chaves, não a aleatoriedade do sorteio. O valor do jackpot é uma estimativa a 7 nov 2026; confirma em <a class="footlink" href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">Jogos Santa Casa</a>. Joga com moderação. +18.
   </div>
 
   <footer class="site-foot">
+    <a href="https://quintopontocardeal.org/" target="_blank" rel="noopener" style="border:none;"><img src="assets/emblema-qpc.webp" width="72" height="75" alt="Quinto Ponto Cardeal"></a>
     <span class="pt-only">Um projeto de </span><span class="en-only">A project by </span><a href="https://quintopontocardeal.org/" target="_blank" rel="noopener">Quinto Ponto Cardeal</a> · quintopontocardeal.org
   </footer>
 </div>
@@ -989,7 +1061,7 @@ const EN_UNITS = {
 const normH = s => s.replace(/\s+/g, ' ').trim();
 const INL = new Set(['B','EM','I','STRONG','SMALL','A','BR','SPAN','MARK','SUP','SUB','CODE']);
 const DYN_IDS = new Set(['prizeJackpot','curNote','statusText','nextDrawLabel','jackpotCap','lastDrawInfo','genHint','modeDesc','btnText','ctaNote','oLines','oJackpot','oAny','oCtx','mApostas','mCusto','mJackpot','mVs','mFormula','noteDraws','htStake','htWon','htBalance','htRet','currentRollover']);
-const SKIP_SEL = '#comboList,#hotSection,#splitResults,#histBody,#multTableBody,#covSection,#recBody,#dayBlock,#rollBlock,.pt-only,.en-only,#langBtn,.site-foot';
+const SKIP_SEL = '#comboList,#hotSection,#splitResults,#histBody,#multTableBody,#covSection,#recBody,#dayBlock,#rollBlock,.pt-only,.en-only,#langBtn,#themeBtn,.site-foot,#extras,#extrasHead';
 function collectUnits() {
   const out = [];
   (function walk(el) {
@@ -1024,6 +1096,7 @@ function applyLang() {
   document.title = L('Imposto Voluntário · Euromilhões', 'The Voluntary Tax · EuroMillions');
   translateStatic();
   const b = document.getElementById('langBtn'); if (b) b.textContent = L('EN', 'PT');
+  applyExtrasText(); applyThemeBtn();
   reflectStatus(); heroTexts(); renderLastDraw(); refreshModeTexts();
   if (lastRender) { renderCombos(lastRender.combos, lastRender.mode); if (lastRender.mode !== 'hot') renderCoverageMap(lastRender.combos); }
   if (DATA.numbers.length) renderHot();
@@ -1781,6 +1854,94 @@ function renderCuriosities() {
       <p class="curiosity-text">${L(`O jackpot atual (${fmtM(INFO.nextJackpot)}, estimativa a ${INFO.updated}) tem uma probabilidade de rollover de cerca de <b>${rolloverProb(cur.n).toFixed(0)}%</b>.`, `The current jackpot (${fmtM(INFO.nextJackpot)}, estimate as of ${INFO.updatedEn}) has a rollover chance of about <b>${rolloverProb(cur.n).toFixed(0)}%</b>.`)}</p>
       <p class="curiosity-note">${L('Cálculo: P(ninguém ganha) = (1 − 1/139 838 160)<sup>N</sup>, com N apostas. Exemplo: N = 70 M dá cerca de 60%; N = 120 M dá cerca de 42%. Os valores de N são estimativas.', 'Formula: P(nobody wins) = (1 − 1/139,838,160)<sup>N</sup>, with N lines. Example: N = 70M gives about 60%; N = 120M gives about 42%. The values of N are estimates.')}</p>`;
   }
+}
+
+// ─── TEMA ────────────────────────────────────────────────────────────────────
+function applyThemeBtn() {
+  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  const b = document.getElementById('themeBtn');
+  if (b) { b.textContent = light ? '☾' : '☀'; b.title = light ? L('Mudar para tema escuro', 'Switch to dark theme') : L('Mudar para tema claro', 'Switch to light theme'); }
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = light ? '#f4efe3' : '#0b1020';
+}
+function toggleTheme() {
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('em_theme', next); } catch (e) {}
+  applyThemeBtn();
+}
+
+// ─── LEMBRETES E SUGESTÕES ───────────────────────────────────────────────────
+// Sugestões: com SUGGEST_ENDPOINT preenchido (endereço de um formulário do
+// Formspree, por exemplo https://formspree.io/f/abcdwxyz), a mensagem segue por lá.
+// Vazio: copia a mensagem e abre a página de contacto da Quinto Ponto Cardeal.
+const SUGGEST_ENDPOINT = '';
+const CONTACT_URL = 'https://quintopontocardeal.org/#contacto';
+const SITE_URL = 'https://pachecodecastro.github.io/euromilhoes/';
+function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
+function applyExtrasText() {
+  setText('exTitle', L('Lembretes e sugestões', 'Reminders and suggestions'));
+  setText('exHint', L('sem conta nem registo', 'no account needed'));
+  setText('remTitle', L('Lembrar-me de jogar', 'Remind me to play'));
+  setText('remText', L('Junta ao teu calendário um lembrete às terças e sextas, os dias do sorteio. Não guardamos nenhum dado: o lembrete fica só no teu calendário e apagas quando quiseres.', 'Add a reminder to your calendar every Tuesday and Friday, the draw days. We store no data: the reminder lives only in your calendar and you can delete it any time.'));
+  setText('remHourLabel', L('Hora do lembrete (Lisboa)', 'Reminder time (Lisbon)'));
+  setText('remBtn', L('📅 Adicionar ao calendário', '📅 Add to calendar'));
+  setText('sugTitle', L('Sugestões', 'Suggestions'));
+  setText('sugText', L('Tens uma ideia ou encontraste um erro? Escreve aqui. O e-mail é opcional, só para te podermos responder.', 'Have an idea or found a mistake? Write it here. Your email is optional, only so we can reply.'));
+  const m = document.getElementById('sugMsg'); if (m) m.placeholder = L('A tua sugestão…', 'Your suggestion…');
+  const e = document.getElementById('sugEmail'); if (e) e.placeholder = L('o teu e-mail (opcional)', 'your email (optional)');
+  setText('sugBtn', L('Enviar sugestão', 'Send suggestion'));
+}
+// Ficheiro .ics com um evento que se repete às terças e sextas, na hora de Lisboa
+function buildReminderICS(hour) {
+  const pad = n => String(n).padStart(2, '0');
+  const day = lisbonISO(NEXT_DRAW).replace(/-/g, '');
+  const now = new Date(), stamp = `${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
+  const esc = t => t.replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  const summary = esc(L('Euromilhões: sorteio hoje às 20:05 (Lisboa)', 'EuroMillions: draw tonight at 20:05 (Lisbon)'));
+  const desc = esc(L('Lembrete do Imposto Voluntário. Probabilidades e chaves: ', 'Reminder from The Voluntary Tax. Odds and lines: ') + SITE_URL);
+  return [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Quinto Ponto Cardeal//Imposto Voluntario//PT', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VTIMEZONE', 'TZID:Europe/Lisbon',
+    'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0000', 'TZOFFSETTO:+0100', 'TZNAME:WEST', 'DTSTART:19700329T010000', 'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU', 'END:DAYLIGHT',
+    'BEGIN:STANDARD', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0000', 'TZNAME:WET', 'DTSTART:19701025T020000', 'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU', 'END:STANDARD',
+    'END:VTIMEZONE',
+    'BEGIN:VEVENT', `UID:euromilhoes-${day}-${hour}@quintopontocardeal.org`, `DTSTAMP:${stamp}`,
+    `DTSTART;TZID=Europe/Lisbon:${day}T${pad(hour)}0000`, 'DURATION:PT15M', 'RRULE:FREQ=WEEKLY;BYDAY=TU,FR',
+    `SUMMARY:${summary}`, `DESCRIPTION:${desc}`, `URL:${SITE_URL}`,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${summary}`, 'TRIGGER:PT0M', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR', ''
+  ].join('\r\n');
+}
+function downloadReminder() {
+  const hour = parseInt(document.getElementById('remHour').value, 10) || 18;
+  const blob = new Blob([buildReminderICS(hour)], { type: 'text/calendar;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'euromilhoes-lembrete.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  setText('remStatus', L('Ficheiro criado. Abre-o para o juntar ao calendário.', 'File created. Open it to add it to your calendar.'));
+}
+async function sendSuggestion() {
+  const msg = (document.getElementById('sugMsg').value || '').trim();
+  const email = (document.getElementById('sugEmail').value || '').trim();
+  const st = document.getElementById('sugStatus');
+  st.style.color = 'var(--red)';
+  if (msg.length < 3) { st.textContent = L('Escreve a sugestão primeiro.', 'Write your suggestion first.'); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.textContent = L('O e-mail não parece válido.', 'That email does not look valid.'); return; }
+  if (SUGGEST_ENDPOINT) {
+    try {
+      const fd = new FormData(); fd.append('message', msg); if (email) fd.append('email', email); fd.append('lang', LANG); fd.append('_subject', 'Sugestão · Imposto Voluntário');
+      const r = await fetch(SUGGEST_ENDPOINT, { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
+      if (!r.ok) throw 0;
+      document.getElementById('sugMsg').value = '';
+      st.style.color = 'var(--green)'; st.textContent = L('Obrigado! A sugestão foi enviada.', 'Thank you! Your suggestion was sent.');
+    } catch (e) { st.textContent = L('Não foi possível enviar agora. Tenta mais tarde.', 'Could not send right now. Please try again later.'); }
+    return;
+  }
+  try { await navigator.clipboard.writeText(msg + (email ? '\n\n' + email : '')); } catch (e) {}
+  window.open(CONTACT_URL, '_blank', 'noopener');
+  st.style.color = 'var(--green)';
+  st.textContent = L('Abrimos a página de contacto da Quinto Ponto Cardeal. A tua sugestão foi copiada: cola-a lá.', 'We opened the Quinto Ponto Cardeal contact page. Your suggestion was copied: paste it there.');
 }
 
 // ─── MÚLTIPLAS ───────────────────────────────────────────────────────────────
