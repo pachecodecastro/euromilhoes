@@ -40,6 +40,7 @@
     --ball:     44px;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
   html { scroll-behavior:smooth; }
   body { background:var(--ink); color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh; overflow-x:hidden; line-height:1.5; -webkit-font-smoothing:antialiased; }
 
@@ -454,14 +455,14 @@
 </head>
 <body>
 <div class="bg"></div>
-<div class="wrap">
+<main class="wrap">
 
   <div class="top">
-    <div class="brand">Imposto Voluntário <b>· Euromilhões</b></div>
+    <h1 class="brand">Imposto Voluntário <b>· Euromilhões</b></h1>
     <div class="top-right">
       <div class="top-btns">
         <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Tema / Theme">☀</button>
-        <button class="lang-btn" id="langBtn" onclick="toggleLang()" aria-label="Language / Idioma">EN</button>
+        <button class="lang-btn" id="langBtn" onclick="toggleLang()" title="Language / Idioma">EN</button>
       </div>
       <a class="lucky-btn" href="https://www.jogossantacasa.pt/web/JogarEuromilhoes/" target="_blank" rel="noopener">
         <span class="lucky-star">✦</span> Carrega aqui para seres milionário
@@ -522,9 +523,9 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab on" id="tabHot" onclick="switchTab('hot')">&#9733; Mais sorteados<br><small style="font-size:11px;opacity:.7">5 chaves · números quentes</small></button>
-    <button class="tab" id="tabCov5" onclick="switchTab('cov5')">&#9700; Cobertura 5<br><small style="font-size:11px;opacity:.7">5 chaves · sobreposição mínima</small></button>
-    <button class="tab" id="tabCov10" onclick="switchTab('cov10')">&#9700;&#9700; Cobertura 10<br><small style="font-size:11px;opacity:.7">10 chaves · cobre todos os nºs</small></button>
+    <button class="tab on" id="tabHot" onclick="switchTab('hot')">&#9733; Mais sorteados<br><small style="font-size:11px">5 chaves · números quentes</small></button>
+    <button class="tab" id="tabCov5" onclick="switchTab('cov5')">&#9700; Cobertura 5<br><small style="font-size:11px">5 chaves · sobreposição mínima</small></button>
+    <button class="tab" id="tabCov10" onclick="switchTab('cov10')">&#9700;&#9700; Cobertura 10<br><small style="font-size:11px">10 chaves · cobre todos os nºs</small></button>
   </div>
 
   <div id="modeDesc" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;"></div>
@@ -601,17 +602,17 @@
   <div class="mult-calc">
     <div class="mult-row">
       <div class="mult-col">
-        <div class="mult-label">Números escolhidos</div>
+        <div class="mult-label" id="mNumsLabel">Números escolhidos</div>
         <div class="mult-slider-row">
-          <input type="range" id="mNums" min="5" max="10" value="6" oninput="updateMult()">
+          <input type="range" id="mNums" aria-labelledby="mNumsLabel" min="5" max="10" value="6" oninput="updateMult()">
           <span class="mult-val" id="mNumsVal">6</span>
         </div>
         <div class="mult-sub">mínimo 5 (simples) &nbsp;·&nbsp; máximo 10</div>
       </div>
       <div class="mult-col">
-        <div class="mult-label">Estrelas escolhidas</div>
+        <div class="mult-label" id="mStarsLabel">Estrelas escolhidas</div>
         <div class="mult-slider-row">
-          <input type="range" id="mStars" min="2" max="10" value="3" oninput="updateMult()">
+          <input type="range" id="mStars" aria-labelledby="mStarsLabel" min="2" max="10" value="3" oninput="updateMult()">
           <span class="mult-val" id="mStarsVal">3</span>
         </div>
         <div class="mult-sub">mínimo 2 (simples) &nbsp;·&nbsp; máximo 10</div>
@@ -640,7 +641,7 @@
 
   <div class="mult-table-wrap">
     <div class="mult-table-title">Tabela de referência: apostas e custo por combinação</div>
-    <div class="mult-table-scroll">
+    <div class="mult-table-scroll" tabindex="0">
       <table class="mult-table">
         <thead>
           <tr>
@@ -671,7 +672,7 @@
     <div class="curiosity-block" style="margin-top:18px;">
       <div class="curiosity-title">&#9654; Os maiores jackpots de sempre</div>
       <p class="curiosity-text">O jackpot máximo (teto) é de <b>€250 milhões</b> e já foi atingido 3 vezes, todas em 2025. Os 10 maiores jackpots ganhos de sempre:</p>
-      <div class="jackpot-list-wrap">
+      <div class="jackpot-list-wrap" tabindex="0">
         <table class="jackpot-table">
           <thead><tr><th>#</th><th>Valor</th><th>Data</th><th>Dia</th><th>País</th></tr></thead>
           <tbody id="recBody"></tbody>
@@ -687,7 +688,7 @@
         Portugal participa no Euromilhões desde <b>2 de outubro de 2004</b> e é um dos países com mais primeiros prémios atribuídos. Ao todo, já saíram <b>mais de 75 jackpots em Portugal</b>, cerca de <b>4 por ano</b>.
       </p>
       <p class="curiosity-text">Os maiores jackpots conhecidos ganhos em Portugal:</p>
-      <div class="jackpot-list-wrap">
+      <div class="jackpot-list-wrap" tabindex="0">
         <table class="jackpot-table">
           <thead><tr><th>#</th><th>Valor ganho</th><th>Valor líquido (−20%)</th><th>Data</th><th>Dia</th><th>Localidade</th><th>Aposta</th></tr></thead>
           <tbody>
@@ -715,7 +716,7 @@
         Portugal has played EuroMillions since <b>2 October 2004</b> and is one of the countries with the most jackpots won. In total, <b>more than 75 jackpots</b> have been won there, about <b>4 a year</b>.
       </p>
       <p class="curiosity-text">The biggest known jackpots won in Portugal:</p>
-      <div class="jackpot-list-wrap">
+      <div class="jackpot-list-wrap" tabindex="0">
         <table class="jackpot-table">
           <thead><tr><th>#</th><th>Amount won</th><th>Net amount (−20%)</th><th>Date</th><th>Day</th><th>Place</th><th>Bet</th></tr></thead>
           <tbody>
@@ -872,15 +873,15 @@
     <!-- Formulário de adição -->
     <div class="hist-add-form">
       <div class="hist-field">
-        <label>Data</label>
+        <label for="hDate">Data</label>
         <input type="date" id="hDate">
       </div>
       <div class="hist-field">
-        <label>Total apostado (€)</label>
+        <label for="hStake">Total apostado (€)</label>
         <input type="number" id="hStake" min="0" step="2.5" value="5" style="width:110px;">
       </div>
       <div class="hist-field">
-        <label>Valor ganho (€)</label>
+        <label for="hWon">Valor ganho (€)</label>
         <input type="number" id="hWon" min="0" step="0.01" value="0" style="width:110px;">
       </div>
       <div class="hist-field" style="flex:1;min-width:200px;">
@@ -897,7 +898,7 @@
     </div>
 
     <!-- Tabela -->
-    <div class="hist-table-wrap">
+    <div class="hist-table-wrap" tabindex="0" style="position:relative">
       <table class="hist-table">
         <thead>
           <tr>
@@ -906,7 +907,7 @@
             <th>Apostado</th>
             <th>Ganho</th>
             <th>Retorno</th>
-            <th></th>
+            <th><span class="sr-only">Apagar</span></th>
           </tr>
         </thead>
         <tbody id="histBody"></tbody>
@@ -959,7 +960,7 @@
     <a href="https://quintopontocardeal.org/" target="_blank" rel="noopener" style="border:none;"><img src="assets/emblema-qpc.webp" width="72" height="75" alt="Quinto Ponto Cardeal"></a>
     <span class="pt-only">Um projeto de </span><span class="en-only">A project by </span><a href="https://quintopontocardeal.org/" target="_blank" rel="noopener">Quinto Ponto Cardeal</a> · quintopontocardeal.org
   </footer>
-</div>
+</main>
 
 <script>
 // ─── IDIOMA / LANGUAGE ───────────────────────────────────────────────────────
@@ -991,9 +992,9 @@ const EN_UNITS = {
 "Hipótese do jackpot": "Jackpot odds",
 "1 em 139 M<small>por aposta · 5/50 + 2/12<\/small>": "1 in 139M<small>per line · 5/50 + 2/12<\/small>",
 "Gerador de chaves": "Line generator",
-"★ Mais sorteados<br><small style=\"font-size:11px;opacity:.7\">5 chaves · números quentes<\/small>": "★ Most drawn<br><small style=\"font-size:11px;opacity:.7\">5 lines · hot numbers<\/small>",
-"◤ Cobertura 5<br><small style=\"font-size:11px;opacity:.7\">5 chaves · sobreposição mínima<\/small>": "◤ Coverage 5<br><small style=\"font-size:11px;opacity:.7\">5 lines · minimal overlap<\/small>",
-"◤◤ Cobertura 10<br><small style=\"font-size:11px;opacity:.7\">10 chaves · cobre todos os nºs<\/small>": "◤◤ Coverage 10<br><small style=\"font-size:11px;opacity:.7\">10 lines · covers every number<\/small>",
+"★ Mais sorteados<br><small style=\"font-size:11px\">5 chaves · números quentes<\/small>": "★ Most drawn<br><small style=\"font-size:11px\">5 lines · hot numbers<\/small>",
+"◤ Cobertura 5<br><small style=\"font-size:11px\">5 chaves · sobreposição mínima<\/small>": "◤ Coverage 5<br><small style=\"font-size:11px\">5 lines · minimal overlap<\/small>",
+"◤◤ Cobertura 10<br><small style=\"font-size:11px\">10 chaves · cobre todos os nºs<\/small>": "◤◤ Coverage 10<br><small style=\"font-size:11px\">10 lines · covers every number<\/small>",
 "Mais sorteados": "Most drawn",
 "× = nº de saídas": "× = times drawn",
 "Vale a pena apostar mais?": "Is it worth betting more?",
@@ -1047,6 +1048,7 @@ const EN_UNITS = {
 "Apostado": "Staked",
 "Ganho": "Won",
 "Retorno": "Return",
+"<span class=\"sr-only\">Apagar<\/span>": "<span class=\"sr-only\">Delete<\/span>",
 "Ainda sem registos. Adiciona o primeiro jogo acima.": "No records yet. Add your first game above.",
 "Total apostado": "Total staked",
 "Total ganho": "Total won",
