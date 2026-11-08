@@ -1,3 +1,15 @@
 __pycache__/
 *.pyc
 chi2_euromilhoes.png
+
+# Hidden files and folders stay on the machine that made them (local
+# settings, caches, credentials). Only the ones listed below are shared.
+.*
+!.gitignore
+!.gitattributes
+!.gitkeep
+!.github/
+!.nojekyll
+!.platform
+!.env.example
+!.editorconfig
