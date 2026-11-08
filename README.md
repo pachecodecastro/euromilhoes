@@ -2,7 +2,7 @@
 
 A single-page web app for following the EuroMillions draws: a line generator, odds calculator, prize split with Portuguese stamp duty, and a personal game history. The name is a nod to the old joke that a lottery is a tax on people who are bad at math. The app agrees with the joke and shows the numbers.
 
-It works in English and Portuguese (use the PT/EN button in the top corner). In English, prizes are shown in pounds by default.
+It works in Portuguese, English, Spanish, French, Dutch and German. The language comes from `?lang=` in the address (`pt`, `en`, `es`, `fr`, `nl` or `de`, for example `index.html?lang=es`), then from the choice saved in the browser, then from the browser's own languages; if none of them matches, it opens in English. The menu in the top corner switches language, saves the choice and updates `?lang=` in the address, so a reload keeps it. Dates, numbers and amounts follow the format of the chosen language. In English, prizes are shown in pounds by default.
 
 **[Open the app](https://pachecodecastro.github.io/euromilhoes/)** · Made by [Quinto Ponto Cardeal](https://quintopontocardeal.org/)
 
@@ -21,7 +21,7 @@ It works in English and Portuguese (use the PT/EN button in the top corner). In 
 - **Reminders.** "Add to calendar" downloads an `.ics` event that repeats every Tuesday and Friday at the time you pick (Lisbon time). Nothing is stored on any server.
 - **Suggestions box.** With `SUGGEST_ENDPOINT` set in `index.html` (a Formspree form URL), suggestions are sent there. While it is empty, the app copies the text and opens the Quinto Ponto Cardeal contact page.
 - **Game history** with percentage return and detection of repeated lines. It is stored only in your browser: nobody else sees it, and there is no login.
-- **Fun facts**, in both languages: the 10 biggest jackpots ever won (checked against euro-millions.com), Tuesday vs. Friday (counted from the CSV), jackpots won in Portugal, winner profiles and rollover odds for the current jackpot.
+- **Fun facts**, in all six languages: the 10 biggest jackpots ever won (checked against euro-millions.com), Tuesday vs. Friday (counted from the CSV), jackpots won in Portugal, winner profiles and rollover odds for the current jackpot.
 
 ---
 
@@ -59,6 +59,7 @@ The script does not use scipy. The chi-square CDF is implemented from scratch wi
 
 ```bash
 node analysis/tests.js
+node analysis/i18n_tests.js
 python3 -m unittest discover -s analysis -v
 ```
 
@@ -73,6 +74,8 @@ python3 -m unittest discover -s analysis -v
 
 `index.html` is a single file and cannot be imported, so `C`, `rolloverProb` and `applyTax` are reimplemented in the test. It checks the math, not the code of the app. In the same way, `prng.js` is a tested reference implementation. The app itself uses a simpler generator.
 
+**`analysis/i18n_tests.js`** (no framework): reads the `<script id="i18n">` block of `index.html` and checks that the six dictionaries have the same keys, the same `{placeholders}`, HTML tags and plural forms, that every key the page uses exists and none is left unused, and that `?lang=` and the other steps pick the right language.
+
 **`analysis/test_chi2.py`** (11 tests, standard library only): CDF reference values, edge cases of the test (perfectly uniform data and biased data), and calibration of the correction by seeded simulation.
 
 ---
@@ -80,7 +83,7 @@ python3 -m unittest discover -s analysis -v
 ## Structure
 
 ```
-index.html                  the whole app (single file, English and Portuguese)
+index.html                  the whole app (single file, six languages)
 assets/
   emblema-qpc.webp          Quinto Ponto Cardeal emblem, shown in the footer
 data/
@@ -90,6 +93,7 @@ analysis/
   test_chi2.py              tests for the Python script
   prng.js                   mulberry32 + weighted sampling, reference version
   tests.js                  test suite (node, no framework)
+  i18n_tests.js             translation checks (node, no framework)
 scripts/
   update-results.sh         downloads and validates the CSV
   chi2-report.sh            runs the test and writes the run summary
@@ -126,7 +130,7 @@ Results come from a public copy kept by daowa89 ([lottery-archive](https://githu
 - Tax follows what Santa Casa states: 20% stamp duty on prizes above €5,000. Always confirm the exact amount when you claim a prize. Rules differ outside Portugal.
 - Exchange rates come from the ECB reference rates (Frankfurter API) and the bitcoin price from Coinbase's public spot endpoint. If either request fails, the app uses fixed rates from 30 Oct 2026 and says so under the selector. The records table and the jackpot cap stay in euros, because they are historical facts in euros.
 - The draw is at about 21:05 CET in Paris, which is 20:05 in Lisbon. The countdown is a plain calculation from that, not a feed.
-- The jackpot and next draw date shown in the app are fixed values in the code (`INFO`), not an API. When the date no longer matches, the app warns that the estimate may be out of date. To update them, edit `nextJackpot` and `nextDrawISO` in `INFO` (current values were checked on euro-millions.com on 7 Nov 2026).
+- The jackpot and next draw date shown in the app are fixed values in the code (`INFO`), not an API. When the date no longer matches, the app warns that the estimate may be out of date. To update them, edit `nextJackpot`, `nextDrawISO` and `updatedISO` (the date of the estimate) in `INFO` (current values were checked on euro-millions.com on 7 Nov 2026).
 - The suggested lines use mulberry32 seeded from `crypto.getRandomValues` on every click. They are meant to give varied bets, not to run a fair draw.
 - The suggestions box only contacts Formspree when `SUGGEST_ENDPOINT` is set, and only when someone presses Send. The message and the optional email then go to Formspree and on to the company inbox.
 - On load the app contacts four outside services: the results CSV (raw.githubusercontent.com), the two exchange-rate APIs above and Google Fonts. Without a connection it falls back to local data and system fonts, and everything else works the same.
@@ -143,7 +147,7 @@ Plain HTML + CSS + JavaScript. No React, no database, no API keys. It runs local
 
 ## Resumo em português
 
-Aplicação web de uma só página da Quinto Ponto Cardeal para acompanhar o EuroMilhões, com gerador de chaves, calculadora de probabilidades, apostas múltiplas, partilha de prémio com imposto do selo e histórico de jogos. Está em português e inglês, mostra a hora do sorteio no fuso de quem visita e deixa ver os prémios em euros, libras, dólares, reais ou bitcoin. O projeto inclui um teste qui-quadrado que mostra que os números mais sorteados no passado não dão qualquer vantagem (p = 0,357 para os números e 0,161 para as estrelas, já com a correção para sorteio sem repetição). Os dados atualizam-se sozinhos às terças e sextas através de uma GitHub Action. O jackpot e a data do próximo sorteio estão fixos no código e têm de ser atualizados à mão.
+Aplicação web de uma só página da Quinto Ponto Cardeal para acompanhar o EuroMilhões, com gerador de chaves, calculadora de probabilidades, apostas múltiplas, partilha de prémio com imposto do selo e histórico de jogos. Está em português, inglês, espanhol, francês, neerlandês e alemão (a língua escolhe-se com `?lang=` no endereço ou no menu do canto), mostra a hora do sorteio no fuso de quem visita e deixa ver os prémios em euros, libras, dólares, reais ou bitcoin. O projeto inclui um teste qui-quadrado que mostra que os números mais sorteados no passado não dão qualquer vantagem (p = 0,357 para os números e 0,161 para as estrelas, já com a correção para sorteio sem repetição). Os dados atualizam-se sozinhos às terças e sextas através de uma GitHub Action. O jackpot e a data do próximo sorteio estão fixos no código e têm de ser atualizados à mão.
 
 ---
 
