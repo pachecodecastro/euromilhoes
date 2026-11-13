@@ -3062,6 +3062,8 @@ function calcSplit() {
 
 // ─── HISTÓRICO ────────────────────────────────────────────────────────────────
 const HIST_KEY = 'em_hist_v1';
+// Text typed by the visitor is shown as text, never as HTML.
+const escHtml = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 let histData = [];
 
 function histLoad() {
@@ -3155,7 +3157,7 @@ function histRender() {
           const n = normaliseKey(k);
           const repeated = n && allNorm[n] > 1;
           const tip = repeated ? tx('hist.repTip', { n: allNorm[n] }) : k;
-          return `<span class="hist-key-tag${repeated?' repeated':''}" title="${tip}">${k}</span>`;
+          return `<span class="hist-key-tag${repeated?' repeated':''}" title="${escHtml(tip)}">${escHtml(k)}</span>`;
         }).join('')
       : '<span style="color:var(--muted-2);font-size:11px;">—</span>';
 
@@ -3165,7 +3167,7 @@ function histRender() {
       <td>${fmtE(r.stake)}</td>
       <td style="color:${r.won > 0 ? 'var(--green)' : 'var(--muted)'}">${fmtE(r.won)}</td>
       <td class="hist-ret ${retClass}">${retStr}</td>
-      <td><button class="hist-del" onclick="histDelete(${r.id})" title="${tx('hist.del')}">✕</button></td>
+      <td><button class="hist-del" onclick="histDelete(${Number(r.id) || 0})" title="${tx('hist.del')}">✕</button></td>
     </tr>`;
   }).join('');
 
